@@ -1,0 +1,698 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Hornomi — Product Requirements Document</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,600;9..144,700;9..144,900&family=Inter:wght@400;500;600;700;800&family=IBM+Plex+Mono:wght@500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --indigo:#9C1F5C;
+    --indigo-2:#C2185B;
+    --indigo-soft:#FCE4EC;
+    --gold:#F0609C;
+    --gold-soft:#FDE0EB;
+    --rust:#D9668A;
+    --sage:#B98AA0;
+    --sage-soft:#F3E3EA;
+    --ivory:#FBE9EC;
+    --paper:#FFFFFF;
+    --ink:#4A1030;
+    --ink-soft:#8C6575;
+    --line:#F0D3DB;
+    --line-soft:#F7E4E9;
+    --radius:14px;
+  }
+  *{box-sizing:border-box;}
+  html{scroll-behavior:smooth;}
+  body{
+    margin:0;
+    background:var(--ivory);
+    color:var(--ink);
+    font-family:'Inter',system-ui,sans-serif;
+    font-size:16px;
+    line-height:1.65;
+  }
+  h1,h2,h3,h4{
+    font-family:'Fraunces',serif;
+    color:var(--indigo);
+    margin:0 0 .4em;
+    letter-spacing:-0.01em;
+  }
+  a{color:var(--indigo-2);}
+  .mono{
+    font-family:'IBM Plex Mono',monospace;
+    letter-spacing:.04em;
+    text-transform:uppercase;
+    font-weight:600;
+  }
+  .wrap{max-width:880px;margin:0 auto;padding:0 32px;}
+
+  /* ---------- HERO ---------- */
+  .hero{
+    background:radial-gradient(circle at 15% -10%, var(--indigo-2), var(--indigo) 60%);
+    color:#fff;
+    padding:88px 32px 0;
+    position:relative;
+    overflow:hidden;
+  }
+  .hero .wrap{padding:0;position:relative;z-index:2;}
+  .hero .eyebrow{
+    font-family:'IBM Plex Mono',monospace;
+    font-size:12.5px;
+    letter-spacing:.14em;
+    text-transform:uppercase;
+    color:var(--gold);
+    margin-bottom:22px;
+    display:flex;align-items:center;gap:10px;
+  }
+  .hero .eyebrow::before{content:"";width:26px;height:1px;background:var(--gold);display:inline-block;}
+  .hero h1{
+    color:#fff;
+    font-size:clamp(52px,9vw,96px);
+    font-weight:600;
+    line-height:.94;
+    margin-bottom:22px;
+  }
+  .hero p.tagline{
+    font-size:20px;
+    max-width:560px;
+    color:#F8D6E3;
+    margin-bottom:44px;
+    font-weight:400;
+  }
+  .hero .meta-row{
+    display:flex;flex-wrap:wrap;gap:14px;
+    padding-bottom:40px;
+  }
+  .meta-pill{
+    border:1px solid rgba(255,255,255,.22);
+    border-radius:100px;
+    padding:8px 16px;
+    font-family:'IBM Plex Mono',monospace;
+    font-size:12px;
+    letter-spacing:.06em;
+    text-transform:uppercase;
+    color:#FCE7EE;
+    display:flex;align-items:center;gap:8px;
+  }
+  .meta-pill svg{width:14px;height:14px;stroke:var(--gold);}
+  .adire-band{
+    height:54px;
+    width:100%;
+    background-image:
+      radial-gradient(circle, rgba(240,96,156,.6) 1.6px, transparent 1.7px),
+      radial-gradient(circle, rgba(255,255,255,.22) 1.6px, transparent 1.7px);
+    background-size:26px 26px, 26px 26px;
+    background-position:0 0, 13px 13px;
+    opacity:.9;
+  }
+
+  /* ---------- SECTION GENERIC ---------- */
+  section.block{padding:64px 0;}
+  section.block.tight{padding:40px 0;}
+  .section-head{margin-bottom:34px;}
+  .section-head .num{
+    font-family:'IBM Plex Mono',monospace;
+    color:var(--rust);
+    font-size:13px;
+    letter-spacing:.1em;
+    display:block;
+    margin-bottom:10px;
+  }
+  .section-head h2{font-size:34px;}
+  .section-head p.lede{color:var(--ink-soft);font-size:17px;max-width:640px;}
+  hr.rule{border:none;border-top:2px solid var(--gold);width:56px;margin:18px 0 0;}
+
+  /* ---------- DESIGN DIRECTION ---------- */
+  .design-panel{background:var(--paper);border:1px solid var(--line);border-radius:20px;padding:44px;margin-top:8px;}
+  .swatch-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:16px;margin:28px 0 40px;}
+  .swatch{border-radius:12px;overflow:hidden;border:1px solid var(--line-soft);}
+  .swatch .chip{height:78px;}
+  .swatch .label{padding:10px 12px;background:var(--paper);}
+  .swatch .label .name{font-weight:600;font-size:13.5px;display:block;}
+  .swatch .label .hex{font-family:'IBM Plex Mono',monospace;font-size:11.5px;color:var(--ink-soft);}
+
+  .type-specimen{border-top:1px solid var(--line-soft);padding-top:32px;margin-top:8px;}
+  .type-row{display:flex;align-items:baseline;gap:20px;flex-wrap:wrap;margin-bottom:22px;}
+  .type-row .tag{width:150px;flex-shrink:0;font-family:'IBM Plex Mono',monospace;font-size:11.5px;color:var(--ink-soft);text-transform:uppercase;letter-spacing:.06em;padding-top:6px;}
+  .type-row .sample.display{font-family:'Fraunces',serif;font-size:44px;color:var(--indigo);font-weight:600;}
+  .type-row .sample.body{font-size:17px;max-width:480px;color:var(--ink);}
+  .type-row .sample.mono{font-family:'IBM Plex Mono',monospace;font-size:13px;color:var(--rust);letter-spacing:.06em;text-transform:uppercase;}
+
+  .icon-strip{display:grid;grid-template-columns:repeat(auto-fit,minmax(96px,1fr));gap:10px;margin-top:30px;border-top:1px solid var(--line-soft);padding-top:32px;}
+  .icon-card{text-align:center;padding:18px 8px;border-radius:12px;background:var(--indigo-soft);}
+  .icon-card svg{width:26px;height:26px;stroke:var(--indigo);fill:none;stroke-width:1.6;stroke-linecap:round;stroke-linejoin:round;}
+  .icon-card .icon-label{display:block;margin-top:10px;font-size:11.5px;color:var(--ink-soft);font-family:'IBM Plex Mono',monospace;text-transform:uppercase;letter-spacing:.04em;}
+
+  /* phone mockup */
+  .mockup-wrap{display:flex;justify-content:center;padding-top:44px;border-top:1px solid var(--line-soft);margin-top:36px;}
+  .phone{
+    width:280px;border-radius:34px;background:var(--indigo);
+    padding:14px;box-shadow:0 24px 50px -18px rgba(36,28,77,.45);
+    position:relative;
+  }
+  .phone .notch{width:70px;height:6px;background:rgba(255,255,255,.25);border-radius:10px;margin:0 auto 10px;}
+  .screen{background:var(--ivory);border-radius:22px;padding:18px 16px 14px;min-height:430px;display:flex;flex-direction:column;}
+  .screen .topbar{display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;}
+  .screen .brandmark{font-family:'Fraunces',serif;font-weight:600;color:var(--indigo);font-size:18px;}
+  .screen .greet{font-size:12.5px;color:var(--ink-soft);margin-bottom:14px;}
+  .card-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:14px;}
+  .mini-card{background:var(--paper);border:1px solid var(--line-soft);border-radius:12px;padding:11px;}
+  .mini-card svg{width:16px;height:16px;stroke:var(--indigo);stroke-width:1.6;fill:none;stroke-linecap:round;stroke-linejoin:round;margin-bottom:8px;}
+  .mini-card .mc-label{font-size:11px;font-weight:600;display:block;}
+  .mini-card .mc-sub{font-size:9.5px;color:var(--ink-soft);}
+  .spark{height:16px;margin-top:6px;display:flex;align-items:flex-end;gap:2px;}
+  .spark i{display:block;width:3px;background:var(--gold);border-radius:1px;}
+  .cta-btn{background:var(--gold);color:var(--ink);text-align:center;font-weight:700;font-size:12.5px;border-radius:100px;padding:11px;margin-top:auto;margin-bottom:14px;}
+  .bottomnav{display:flex;justify-content:space-between;background:var(--paper);border-radius:14px;padding:9px 12px;border:1px solid var(--line-soft);}
+  .bottomnav svg{width:16px;height:16px;stroke:var(--ink-soft);fill:none;stroke-width:1.6;stroke-linecap:round;stroke-linejoin:round;}
+  .bottomnav .active svg{stroke:var(--indigo);}
+  .caption{text-align:center;font-family:'IBM Plex Mono',monospace;font-size:11px;letter-spacing:.06em;text-transform:uppercase;color:var(--ink-soft);margin-top:18px;}
+
+  /* ---------- TOC ---------- */
+  nav.toc{background:var(--paper);border:1px solid var(--line);border-radius:20px;padding:30px 36px;margin:0 0 8px;}
+  nav.toc h3{font-size:16px;font-family:'IBM Plex Mono',monospace;text-transform:uppercase;letter-spacing:.08em;color:var(--ink-soft);margin-bottom:16px;}
+  nav.toc ol{columns:2;column-gap:34px;padding-left:0;margin:0;list-style:none;counter-reset:toc;}
+  nav.toc li{counter-increment:toc;font-size:14.5px;margin-bottom:10px;break-inside:avoid;}
+  nav.toc li a{text-decoration:none;color:var(--ink);}
+  nav.toc li a:hover{color:var(--rust);}
+  nav.toc li::before{content:counter(toc, decimal-leading-zero) "  ";font-family:'IBM Plex Mono',monospace;color:var(--rust);font-size:12.5px;}
+
+  /* ---------- CARDS / TABLES / CALLOUTS ---------- */
+  .card{background:var(--paper);border:1px solid var(--line);border-radius:var(--radius);padding:26px 28px;margin-bottom:18px;}
+  .grid-2{display:grid;grid-template-columns:1fr 1fr;gap:18px;}
+  .grid-3{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;}
+  @media(max-width:720px){.grid-2,.grid-3{grid-template-columns:1fr;} nav.toc ol{columns:1;}}
+
+  table{width:100%;border-collapse:collapse;margin:10px 0 26px;font-size:14.5px;}
+  th{
+    font-family:'IBM Plex Mono',monospace;
+    font-size:11px;text-transform:uppercase;letter-spacing:.06em;
+    color:var(--ink-soft);text-align:left;
+    padding:10px 14px;border-bottom:2px solid var(--indigo);
+  }
+  td{padding:12px 14px;border-bottom:1px solid var(--line-soft);vertical-align:top;}
+  tr:last-child td{border-bottom:none;}
+
+  .pill{
+    display:inline-block;font-family:'IBM Plex Mono',monospace;font-size:10.5px;
+    text-transform:uppercase;letter-spacing:.05em;padding:4px 10px;border-radius:100px;font-weight:600;
+  }
+  .pill.must{background:var(--indigo-soft);color:var(--indigo);}
+  .pill.should{background:var(--gold-soft);color:#A13B63;}
+  .pill.new{background:var(--sage-soft);color:#6B3550;}
+  .pill.phase{background:#F1EADD;color:var(--rust);}
+
+  .feature-card{border-left:4px solid var(--indigo);}
+  .feature-card.new{border-left-color:var(--sage);}
+  .feature-card .fc-title{display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px;margin-bottom:6px;}
+  .feature-card .fc-title h4{font-size:19px;margin:0;}
+  .feature-card ul{margin:10px 0 0;padding-left:20px;}
+  .feature-card li{margin-bottom:5px;font-size:14.5px;}
+
+  .callout{border-radius:var(--radius);padding:20px 24px;margin:20px 0;font-size:14.5px;}
+  .callout.privacy{background:var(--indigo-soft);border:1px solid #F3C4D6;}
+  .callout.safety{background:var(--sage-soft);border:1px solid #E3CBD6;}
+  .callout .callout-label{font-family:'IBM Plex Mono',monospace;font-size:11px;text-transform:uppercase;letter-spacing:.06em;display:block;margin-bottom:8px;font-weight:600;}
+  .callout.privacy .callout-label{color:var(--indigo-2);}
+  .callout.safety .callout-label{color:#6B3550;}
+
+  .persona-card{background:var(--paper);border:1px solid var(--line);border-radius:var(--radius);padding:24px;}
+  .persona-card .p-name{font-family:'Fraunces',serif;font-size:21px;color:var(--indigo);margin-bottom:2px;}
+  .persona-card .p-meta{font-size:12.5px;color:var(--ink-soft);margin-bottom:14px;}
+  .persona-card .p-quote{font-style:italic;color:var(--rust);font-size:14px;border-top:1px solid var(--line-soft);padding-top:12px;margin-top:14px;}
+
+  .roadmap{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-top:10px;}
+  .roadmap .phase{background:var(--paper);border:1px solid var(--line);border-radius:var(--radius);padding:20px;}
+  .roadmap .phase .ph-num{font-family:'IBM Plex Mono',monospace;color:var(--gold);font-size:12px;display:block;margin-bottom:6px;}
+  .roadmap .phase h4{font-size:16px;margin-bottom:8px;}
+  .roadmap .phase p{font-size:13px;color:var(--ink-soft);margin:0;}
+  @media(max-width:800px){.roadmap{grid-template-columns:1fr 1fr;}}
+
+  .checklist{list-style:none;padding:0;margin:0;}
+  .checklist li{display:flex;gap:10px;padding:10px 0;border-bottom:1px solid var(--line-soft);font-size:14.5px;}
+  .checklist li::before{content:"";width:16px;height:16px;flex-shrink:0;border:1.6px solid var(--indigo);border-radius:4px;margin-top:2px;}
+
+  footer{background:var(--indigo);color:#F3CFE0;padding:50px 0;text-align:center;font-size:13.5px;}
+  footer .brandmark{font-family:'Fraunces',serif;color:#fff;font-size:22px;margin-bottom:10px;}
+
+  ::selection{background:var(--gold-soft);}
+</style>
+</head>
+<body>
+
+<!-- ============ HERO ============ -->
+<div class="hero">
+  <div class="wrap">
+    <div class="eyebrow">Product Requirements Document</div>
+    <h1>Hornomi</h1>
+    <p class="tagline">A PCOS health companion for women in Nigeria — built as a native app for iOS and Android, designed to feel like a trusted friend, not a clinic.</p>
+    <div class="meta-row">
+      <span class="meta-pill"><svg viewBox="0 0 24 24"><path d="M12 2a10 10 0 1 0 0 20 10 10 0 0 0 0-20z"/></svg>Native · iOS & Android</span>
+      <span class="meta-pill"><svg viewBox="0 0 24 24"><path d="M4 4h16v16H4z"/></svg>Status: Stakeholder Review</span>
+      <span class="meta-pill"><svg viewBox="0 0 24 24"><path d="M12 2 2 7l10 5 10-5-10-5z"/></svg>Market: Nigeria, expanding across Africa</span>
+    </div>
+  </div>
+  <div class="adire-band"></div>
+</div>
+
+<div class="wrap">
+
+<!-- ============ DESIGN DIRECTION ============ -->
+<section class="block" id="design">
+  <div class="section-head">
+    <span class="num">DESIGN DIRECTION</span>
+    <h2>The feel of Hornomi</h2>
+    <hr class="rule">
+    <p class="lede" style="margin-top:16px;">A warm, feminine palette built around rose and blush. Deep rose carries trust and depth without turning clinical; flamingo pink carries encouragement; soft blush is the resting background a user can sit with while managing something personal. The dot pattern echoes the rhythm of a cycle. Nothing here reads as a clinic. Everything reads as a companion.</p>
+  </div>
+
+  <div class="design-panel">
+    <h3 style="font-size:15px;font-family:'IBM Plex Mono',monospace;text-transform:uppercase;letter-spacing:.08em;color:var(--ink-soft);margin-bottom:4px;">Color Palette</h3>
+    <div class="swatch-grid">
+      <div class="swatch"><div class="chip" style="background:#9C1F5C;"></div><div class="label"><span class="name">Deep Rose</span><span class="hex">#9C1F5C · Primary</span></div></div>
+      <div class="swatch"><div class="chip" style="background:#F0609C;"></div><div class="label"><span class="name">Flamingo Pink</span><span class="hex">#F0609C · Accent / CTA</span></div></div>
+      <div class="swatch"><div class="chip" style="background:#D9668A;"></div><div class="label"><span class="name">Coral Rose</span><span class="hex">#D9668A · Data & Emphasis</span></div></div>
+      <div class="swatch"><div class="chip" style="background:#B98AA0;"></div><div class="label"><span class="name">Dusty Mauve</span><span class="hex">#B98AA0 · Calm / Reassurance</span></div></div>
+      <div class="swatch"><div class="chip" style="background:#FBE9EC;border-bottom:1px solid var(--line);"></div><div class="label"><span class="name">Blush Ivory</span><span class="hex">#FBE9EC · Background</span></div></div>
+      <div class="swatch"><div class="chip" style="background:#4A1030;"></div><div class="label"><span class="name">Plum Ink</span><span class="hex">#4A1030 · Text</span></div></div>
+    </div>
+
+    <div class="type-specimen">
+      <h3 style="font-size:15px;font-family:'IBM Plex Mono',monospace;text-transform:uppercase;letter-spacing:.08em;color:var(--ink-soft);margin-bottom:20px;">Typography</h3>
+      <div class="type-row"><span class="tag">Display — Fraunces</span><span class="sample display">Track. Understand. Prepare.</span></div>
+      <div class="type-row"><span class="tag">Body — Inter</span><span class="sample body">Warm, plain-language copy that never feels clinical. Used for every screen a user reads while managing something personal.</span></div>
+      <div class="type-row"><span class="tag">Utility — IBM Plex Mono</span><span class="sample mono">Symptom logged · 2-tap entry</span></div>
+    </div>
+
+    <div class="icon-strip">
+      <div class="icon-card"><svg viewBox="0 0 24 24"><path d="M20 12.3A8.5 8.5 0 1 1 11.7 4a6.7 6.7 0 0 0 8.3 8.3z"/></svg><span class="icon-label">Cycle</span></div>
+      <div class="icon-card"><svg viewBox="0 0 24 24"><path d="M3 12h4l2 6 4-12 2 6h6"/></svg><span class="icon-label">Symptoms</span></div>
+      <div class="icon-card"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M8 14s1.5 2 4 2 4-2 4-2M9 9h.01M15 9h.01"/></svg><span class="icon-label">Mood</span></div>
+      <div class="icon-card"><svg viewBox="0 0 24 24"><path d="M4 19V6a2 2 0 0 1 2-2h9l5 5v10a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2z"/><path d="M14 4v5h5"/></svg><span class="icon-label">Records</span></div>
+      <div class="icon-card"><svg viewBox="0 0 24 24"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20V4H6.5A2.5 2.5 0 0 0 4 6.5v13z"/></svg><span class="icon-label">Learn</span></div>
+      <div class="icon-card"><svg viewBox="0 0 24 24"><path d="M21 11.5a8.4 8.4 0 0 1-8.9 8.4 8.6 8.6 0 0 1-3.6-.8L3 20l1-5.4a8.4 8.4 0 0 1-.9-3.6A8.4 8.4 0 0 1 11.5 2 8.6 8.6 0 0 1 21 11.5z"/></svg><span class="icon-label">Guidance</span></div>
+      <div class="icon-card"><svg viewBox="0 0 24 24"><path d="M12 2 3 6v6c0 5 4 8.5 9 10 5-1.5 9-5 9-10V6z"/></svg><span class="icon-label">Privacy</span></div>
+      <div class="icon-card"><svg viewBox="0 0 24 24"><rect x="3" y="7" width="18" height="14" rx="2"/><path d="M8 7V5a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg><span class="icon-label">Reminders</span></div>
+    </div>
+
+    <div class="mockup-wrap">
+      <div class="phone">
+        <div class="notch"></div>
+        <div class="screen">
+          <div class="topbar">
+            <span class="brandmark">Hornomi</span>
+            <svg viewBox="0 0 24 24" width="16" height="16" stroke="#8C6575" stroke-width="1.6" fill="none" stroke-linecap="round"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 9-3 9h18s-3-2-3-9M13.7 21a2 2 0 0 1-3.4 0"/></svg>
+          </div>
+          <div class="greet">Good morning, Amaka. Day 14 of your cycle.</div>
+          <div class="card-grid">
+            <div class="mini-card">
+              <svg viewBox="0 0 24 24"><path d="M20 12.3A8.5 8.5 0 1 1 11.7 4a6.7 6.7 0 0 0 8.3 8.3z"/></svg>
+              <span class="mc-label">Cycle</span><span class="mc-sub">Day 14 · Regular</span>
+            </div>
+            <div class="mini-card">
+              <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M8 14s1.5 2 4 2 4-2 4-2M9 9h.01M15 9h.01"/></svg>
+              <span class="mc-label">Mood</span>
+              <div class="spark"><i style="height:5px"></i><i style="height:9px"></i><i style="height:7px"></i><i style="height:12px"></i><i style="height:10px"></i></div>
+            </div>
+            <div class="mini-card">
+              <svg viewBox="0 0 24 24"><path d="M3 12h4l2 6 4-12 2 6h6"/></svg>
+              <span class="mc-label">Symptoms</span><span class="mc-sub">2 logged today</span>
+            </div>
+            <div class="mini-card">
+              <svg viewBox="0 0 24 24"><path d="M21 11.5a8.4 8.4 0 0 1-8.9 8.4 8.6 8.6 0 0 1-3.6-.8L3 20l1-5.4a8.4 8.4 0 0 1-.9-3.6A8.4 8.4 0 0 1 11.5 2 8.6 8.6 0 0 1 21 11.5z"/></svg>
+              <span class="mc-label">Guidance</span><span class="mc-sub">Response in 1 day</span>
+            </div>
+          </div>
+          <div class="cta-btn">Log today's symptoms</div>
+          <div class="bottomnav">
+            <span class="active"><svg viewBox="0 0 24 24"><path d="M3 12l9-8 9 8M5 10v10h14V10"/></svg></span>
+            <span><svg viewBox="0 0 24 24"><path d="M3 12h4l2 6 4-12 2 6h6"/></svg></span>
+            <span><svg viewBox="0 0 24 24"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20V4H6.5A2.5 2.5 0 0 0 4 6.5v13z"/></svg></span>
+            <span><svg viewBox="0 0 24 24"><path d="M21 11.5a8.4 8.4 0 0 1-8.9 8.4 8.6 8.6 0 0 1-3.6-.8L3 20l1-5.4a8.4 8.4 0 0 1-.9-3.6A8.4 8.4 0 0 1 11.5 2 8.6 8.6 0 0 1 21 11.5z"/></svg></span>
+            <span><svg viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4 4-6 8-6s8 2 8 6"/></svg></span>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="caption">Illustrative dashboard — indicative of direction, not final UI</div>
+  </div>
+</section>
+
+<!-- ============ TOC ============ -->
+<section class="block tight">
+  <nav class="toc">
+    <h3>Contents</h3>
+    <ol>
+      <li><a href="#exec">Executive Summary</a></li>
+      <li><a href="#problem">Problem Statement</a></li>
+      <li><a href="#solution">Solution Overview</a></li>
+      <li><a href="#vision">Vision &amp; Principles</a></li>
+      <li><a href="#goals">Goals &amp; Success Metrics</a></li>
+      <li><a href="#audience">Target Audience &amp; Personas</a></li>
+      <li><a href="#competitive">Competitive Landscape</a></li>
+      <li><a href="#ia">Information Architecture</a></li>
+      <li><a href="#scope">MVP Scope</a></li>
+      <li><a href="#features">Functional Requirements</a></li>
+      <li><a href="#nfr">Non-Functional Requirements</a></li>
+      <li><a href="#data">Data Model &amp; Business Rules</a></li>
+      <li><a href="#roadmap">Roadmap</a></li>
+      <li><a href="#readiness">Release Readiness</a></li>
+      <li><a href="#compliance">Privacy &amp; Compliance</a></li>
+      <li><a href="#risks">Risks &amp; Open Questions</a></li>
+    </ol>
+  </nav>
+</section>
+
+<!-- ============ EXEC SUMMARY ============ -->
+<section class="block" id="exec">
+  <div class="section-head"><span class="num">01</span><h2>Executive Summary</h2><hr class="rule"></div>
+  <p>Hornomi is a native mobile app, for iOS and Android, that helps women in Nigeria understand, track, and manage PCOS — polycystic ovary syndrome — with dignity and without judgment. It gives users a plain-language, non-diagnostic self-assessment; simple daily tracking of cycles, symptoms, weight, and mood; a medically reviewed education library; and a light, honest path to professional guidance when they need more than the app can offer.</p>
+  <p>Hornomi does not diagnose, treat, or replace a healthcare provider. Its job is to close the gap between <em>"I have symptoms and don't understand them"</em> and <em>"I am ready to have an informed conversation with a professional."</em></p>
+</section>
+
+<!-- ============ PROBLEM ============ -->
+<section class="block" id="problem">
+  <div class="section-head"><span class="num">02</span><h2>Problem Statement</h2><hr class="rule"></div>
+  <p>PCOS affects a substantial share of Nigerian women of reproductive age — published studies place the figure anywhere from roughly 9% to 20%, higher still among women presenting with infertility — yet many go undiagnosed for years. Symptoms like irregular cycles, acne, weight change, excess hair growth, fatigue, and fertility difficulty are frequently dismissed, misunderstood, or self-managed with no professional input at all.</p>
+  <p>The barriers are structural as much as medical: specialists concentrated in major cities, high consultation costs, and a real social stigma around reproductive health — including, in some documented cases, the fear of being seen as less "marriageable" because of fertility implications. Most existing tools are either generic global period trackers with no PCOS depth, or general wellness content with no Nigerian context. A woman managing this condition today is left to piece it together from social media, forums, and memory.</p>
+</section>
+
+<!-- ============ SOLUTION ============ -->
+<section class="block" id="solution">
+  <div class="section-head"><span class="num">03</span><h2>Solution Overview</h2><hr class="rule"></div>
+  <p>Hornomi brings four capabilities into one app:</p>
+  <div class="grid-2">
+    <div class="card"><h4 style="font-size:16px;">1 · Understand</h4><p style="font-size:14.5px;margin:0;">A non-diagnostic self-assessment that explains, in plain language, whether a symptom pattern is commonly associated with PCOS.</p></div>
+    <div class="card"><h4 style="font-size:16px;">2 · Track</h4><p style="font-size:14.5px;margin:0;">Structured, low-effort logging of cycles, symptoms, weight, and mood that reveals real patterns over time.</p></div>
+    <div class="card"><h4 style="font-size:16px;">3 · Learn</h4><p style="font-size:14.5px;margin:0;">A medically reviewed education library that replaces fragmented, unreliable information.</p></div>
+    <div class="card"><h4 style="font-size:16px;">4 · Prepare &amp; Connect</h4><p style="font-size:14.5px;margin:0;">Shareable health summaries and a lightweight path to professional guidance, without pretending to be telemedicine on day one.</p></div>
+  </div>
+</section>
+
+<!-- ============ VISION ============ -->
+<section class="block" id="vision">
+  <div class="section-head"><span class="num">04</span><h2>Vision &amp; Principles</h2><hr class="rule"></div>
+  <p style="font-size:19px;font-family:'Fraunces',serif;color:var(--indigo);max-width:640px;">To become the most trusted companion for women managing PCOS and hormonal health in Africa.</p>
+  <ul style="font-size:15px;">
+    <li><strong>Education before assumptions</strong> — evidence-based content, never a substitute for a clinician.</li>
+    <li><strong>Localized and dignified</strong> — built for Nigerian realities: cost, access, stigma, culture.</li>
+    <li><strong>Empowerment through data</strong> — simple pattern recognition a user can act on.</li>
+    <li><strong>Preventive, not alarming</strong> — early awareness without fear-based messaging.</li>
+    <li><strong>Trust and privacy by default</strong> — this condition carries stigma; the app must never make that worse.</li>
+  </ul>
+</section>
+
+<!-- ============ GOALS / METRICS ============ -->
+<section class="block" id="goals">
+  <div class="section-head"><span class="num">05</span><h2>Goals &amp; Success Metrics</h2><hr class="rule"></div>
+  <table>
+    <tr><th>Goal</th><th>Metric</th><th>Day 90</th><th>Day 180</th></tr>
+    <tr><td>Awareness &amp; education</td><td>% active users reading ≥1 article/week</td><td>30%</td><td>40%</td></tr>
+    <tr><td>Tracking adoption</td><td>% users logging ≥1 entry/week</td><td>40%</td><td>50%</td></tr>
+    <tr><td>Assessment completion</td><td>% new users completing onboarding assessment</td><td>60%</td><td>70%</td></tr>
+    <tr><td>Retention</td><td>Day-30 retention</td><td>25%</td><td>35%</td></tr>
+    <tr><td>Healthcare readiness</td><td>% users sharing a health summary</td><td>12%</td><td>20%</td></tr>
+    <tr><td>Guidance uptake</td><td>% assessed users submitting a guidance request</td><td>—</td><td>8–10%</td></tr>
+    <tr><td>Trust</td><td>In-app NPS</td><td>20</td><td>30</td></tr>
+  </table>
+</section>
+
+<!-- ============ AUDIENCE ============ -->
+<section class="block" id="audience">
+  <div class="section-head"><span class="num">06</span><h2>Target Audience &amp; Personas</h2><hr class="rule">
+    <p class="lede" style="margin-top:16px;">Primary: women 18–40 in Nigeria, newly diagnosed, undiagnosed-but-symptomatic, or managing PCOS long-term. Secondary: gynecologists, endocrinologists, dietitians, and clinics as future guidance partners.</p>
+  </div>
+  <div class="grid-2">
+    <div class="persona-card">
+      <div class="p-name">Amaka Eze</div>
+      <div class="p-meta">29 · Marketing Executive · Lagos · Newly diagnosed</div>
+      <p style="font-size:14px;margin:0;">Wants plain-language understanding and low-effort, consistent tracking she can trust — without spending late nights researching symptoms online.</p>
+      <div class="p-quote">"I just want one place that explains things in plain language and helps me keep track."</div>
+    </div>
+    <div class="persona-card">
+      <div class="p-name">Chioma Adebayo</div>
+      <div class="p-meta">22 · Final-year student · Ibadan · Undiagnosed</div>
+      <p style="font-size:14px;margin:0;">Budget-constrained, has never seen a specialist, and needs to know if her symptoms are worth a consultation before spending money she doesn't have to spare.</p>
+      <div class="p-quote">"I don't even know if what I'm feeling is something serious."</div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ COMPETITIVE ============ -->
+<section class="block" id="competitive">
+  <div class="section-head"><span class="num">07</span><h2>Competitive Landscape</h2><hr class="rule"></div>
+  <table>
+    <tr><th>Product</th><th>Strength</th><th>Where Hornomi differentiates</th></tr>
+    <tr><td>VivaFemini (Nigeria)</td><td>PCOS-aware alerts, verified provider access</td><td>Deeper, more rigorous self-assessment and longitudinal pattern tracking</td></tr>
+    <tr><td>Poka Health (Africa)</td><td>Free, African-context period tracker</td><td>Not PCOS-specialized; Hornomi goes deeper on this specific condition</td></tr>
+    <tr><td>Her Pride (Nigeria)</td><td>Mood logging, pad subscription</td><td>Commerce-first, not condition-specific</td></tr>
+    <tr><td>Flo / Clue / Ovia (Global)</td><td>Large content libraries</td><td>Not localized to Nigerian cost, access, or cultural context</td></tr>
+  </table>
+  <p style="font-size:14.5px;color:var(--ink-soft);">Positioning: Hornomi wins on depth of self-understanding and doctor-visit readiness, delivered with more medical rigor and more privacy discretion than any current option — not on being first to market.</p>
+</section>
+
+<!-- ============ IA ============ -->
+<section class="block" id="ia">
+  <div class="section-head"><span class="num">08</span><h2>Information Architecture</h2><hr class="rule"></div>
+  <div class="grid-3">
+    <div class="card"><h4 style="font-size:15px;">Home</h4><p style="font-size:13.5px;margin:0;">Dashboard: cycle, symptom, weight, mood cards + guidance prompt</p></div>
+    <div class="card"><h4 style="font-size:15px;">Track</h4><p style="font-size:13.5px;margin:0;">Cycle, symptom, weight, mood logging + Journal</p></div>
+    <div class="card"><h4 style="font-size:15px;">Learn</h4><p style="font-size:13.5px;margin:0;">Categories, search, saved articles</p></div>
+    <div class="card"><h4 style="font-size:15px;">Guidance</h4><p style="font-size:13.5px;margin:0;">Request Guidance (async), guidance history</p></div>
+    <div class="card"><h4 style="font-size:15px;">Profile</h4><p style="font-size:13.5px;margin:0;">Privacy, Discreet Mode, notifications, health summary export</p></div>
+    <div class="card"><h4 style="font-size:15px;">Onboarding</h4><p style="font-size:13.5px;margin:0;">Welcome → Consent → Adaptive profile → Assessment</p></div>
+  </div>
+</section>
+
+<!-- ============ MVP SCOPE ============ -->
+<section class="block" id="scope">
+  <div class="section-head"><span class="num">09</span><h2>MVP Scope</h2><hr class="rule"></div>
+  <table>
+    <tr><th>Feature</th><th>Release</th></tr>
+    <tr><td>Registration &amp; Authentication</td><td><span class="pill must">MVP</span></td></tr>
+    <tr><td>Onboarding, Consent &amp; Adaptive Profile</td><td><span class="pill must">MVP</span></td></tr>
+    <tr><td>Non-Diagnostic PCOS Assessment</td><td><span class="pill must">MVP</span></td></tr>
+    <tr><td>Dashboard</td><td><span class="pill must">MVP</span></td></tr>
+    <tr><td>Cycle, Symptom &amp; Weight Tracking</td><td><span class="pill must">MVP</span></td></tr>
+    <tr><td>Mood Check-in</td><td><span class="pill new">MVP · New</span></td></tr>
+    <tr><td>Health Journal</td><td><span class="pill should">MVP</span></td></tr>
+    <tr><td>Educational Content Library</td><td><span class="pill must">MVP</span></td></tr>
+    <tr><td>Health Summary (Generate / Share)</td><td><span class="pill must">MVP</span></td></tr>
+    <tr><td>Request Guidance (async, lightweight)</td><td><span class="pill new">MVP · New</span></td></tr>
+    <tr><td>Notifications &amp; Reminders</td><td><span class="pill should">MVP</span></td></tr>
+    <tr><td>Settings, Privacy &amp; Discreet Mode</td><td><span class="pill must">MVP</span></td></tr>
+    <tr><td>Medication Tracking · Nutrition &amp; Lifestyle Coaching</td><td><span class="pill phase">Phase 2</span></td></tr>
+    <tr><td>Full Doctor Directory &amp; Appointment Booking · Health Records</td><td><span class="pill phase">Phase 3</span></td></tr>
+    <tr><td>In-App Community</td><td><span class="pill phase">Phase 4</span></td></tr>
+  </table>
+</section>
+
+<!-- ============ FUNCTIONAL REQUIREMENTS ============ -->
+<section class="block" id="features">
+  <div class="section-head"><span class="num">10</span><h2>Functional Requirements</h2><hr class="rule">
+    <p class="lede" style="margin-top:16px;">MVP features, in priority order. Each ships to both iOS and Android from a shared design system.</p>
+  </div>
+
+  <div class="card feature-card">
+    <div class="fc-title"><h4>Registration &amp; Authentication</h4><span class="pill must">Must Have</span></div>
+    <p style="font-size:14.5px;margin:6px 0 0;">Email or phone sign-up with OTP verification; native biometric login (Face ID / Touch ID on iOS, BiometricPrompt on Android) once enabled.</p>
+    <ul>
+      <li>One account per verified email/phone; passwords never stored in plain text.</li>
+      <li>5 failed OTP attempts trigger a 15-minute lockout.</li>
+      <li>Account must be verified before any tracking feature is accessible.</li>
+    </ul>
+  </div>
+
+  <div class="card feature-card">
+    <div class="fc-title"><h4>Onboarding, Consent &amp; Adaptive Profile</h4><span class="pill must">Must Have</span></div>
+    <p style="font-size:14.5px;margin:6px 0 0;">A short, linear flow that only asks follow-up questions relevant to what the user says she wants help with — no consent, no proceeding.</p>
+    <ul>
+      <li>Consent is mandatory; every health-disclosure question includes "I prefer not to say."</li>
+      <li>Consent timestamp and policy version recorded before any data collection.</li>
+      <li>Preferences editable later from Profile.</li>
+    </ul>
+  </div>
+
+  <div class="card feature-card">
+    <div class="fc-title"><h4>Non-Diagnostic PCOS Assessment</h4><span class="pill must">Must Have</span></div>
+    <p style="font-size:14.5px;margin:6px 0 0;">A structured questionnaire, built on a recognized clinical screening framework and signed off by a Medical Advisor, that returns a plain-language, categorical result — never a diagnosis.</p>
+    <ul>
+      <li>Result always shown with a visible disclaimer and a "Talk to someone" call to action.</li>
+      <li>A defined, Medical Advisor-approved escalation message displays for any flagged answer pattern.</li>
+      <li>Retakes are saved to history, never overwriting a prior result.</li>
+    </ul>
+    <div class="callout safety"><span class="callout-label">Safety requirement</span>The escalation path for a concerning answer pattern is a launch blocker, not a later refinement. It must be clinically reviewed and testable before release.</div>
+  </div>
+
+  <div class="card feature-card">
+    <div class="fc-title"><h4>Dashboard</h4><span class="pill must">Must Have</span></div>
+    <p style="font-size:14.5px;margin:6px 0 0;">One glance at cycle, symptom, weight, and mood trends, over a selectable 30/90/180-day range, with a guided empty state for new users.</p>
+  </div>
+
+  <div class="card feature-card">
+    <div class="fc-title"><h4>Cycle, Symptom &amp; Weight Tracking</h4><span class="pill must">Must Have</span></div>
+    <p style="font-size:14.5px;margin:6px 0 0;">Two-tap-or-fewer logging throughout. Next-cycle prediction shown only once two cycles exist, clearly caveated as an estimate.</p>
+  </div>
+
+  <div class="card feature-card new">
+    <div class="fc-title"><h4>Mood Check-in</h4><span class="pill new">New</span></div>
+    <p style="font-size:14.5px;margin:6px 0 0;">A single-tap, structured mood scale (not just emoji) on the dashboard, with an optional one-line note — a low-effort way to track emotional wellbeing alongside physical symptoms.</p>
+    <ul>
+      <li>Never framed as a mental-health diagnostic tool.</li>
+      <li>Repeated low-mood entries within a Medical Advisor-defined window surface a gentle, supportive resource message — once per interval, never punitive.</li>
+    </ul>
+  </div>
+
+  <div class="card feature-card">
+    <div class="fc-title"><h4>Health Journal</h4><span class="pill should">Should Have</span></div>
+    <p style="font-size:14.5px;margin:6px 0 0;">Private free-text entries, excluded from any shared summary unless explicitly opted in per entry.</p>
+  </div>
+
+  <div class="card feature-card">
+    <div class="fc-title"><h4>Educational Content Library</h4><span class="pill must">Must Have</span></div>
+    <p style="font-size:14.5px;margin:6px 0 0;">Searchable, categorized articles. Every article is medically reviewed before publishing, with review status visible.</p>
+  </div>
+
+  <div class="card feature-card">
+    <div class="fc-title"><h4>Health Summary — Generate &amp; Share</h4><span class="pill must">Must Have</span></div>
+    <p style="font-size:14.5px;margin:6px 0 0;">Auto-compiles the assessment result and tracked trends into a shareable document for a doctor's visit. Journal entries are opt-in per generation, never included by default.</p>
+  </div>
+
+  <div class="card feature-card new">
+    <div class="fc-title"><h4>Request Guidance</h4><span class="pill new">New</span></div>
+    <p style="font-size:14.5px;margin:6px 0 0;">A lightweight, asynchronous bridge to professional input — not a diagnosis, not real-time telemedicine. A user submits a structured query, auto-populated from her latest assessment and recent logs, to a small pool of verified partner providers, who respond within a stated window (target: 48 hours).</p>
+    <ul>
+      <li>Only verified/credentialed providers may receive requests.</li>
+      <li>The user reviews exactly what data is being shared before sending.</li>
+      <li>Clear, unmissable notice: this is not for emergencies.</li>
+    </ul>
+  </div>
+
+  <div class="card feature-card">
+    <div class="fc-title"><h4>Notifications &amp; Reminders</h4><span class="pill should">Should Have</span></div>
+    <p style="font-size:14.5px;margin:6px 0 0;">Native push via APNs (iOS) and FCM (Android), requested through the platform's standard permission prompt. Every non-critical category is individually toggle-able.</p>
+  </div>
+
+  <div class="card feature-card">
+    <div class="fc-title"><h4>Settings, Privacy &amp; Discreet Mode</h4><span class="pill must">Must Have</span></div>
+    <p style="font-size:14.5px;margin:6px 0 0;">Profile, notification, and privacy controls, plus two features built specifically for the stigma this condition carries.</p>
+    <div class="callout privacy">
+      <span class="callout-label">Discreet Mode &amp; App Lock</span>
+      An alternate app name and icon (using iOS's Alternate App Icons and Android's icon-alias support) so the app doesn't announce its purpose on a home screen, plus PIN/biometric App Lock. Off by default, offered clearly during onboarding's privacy step — not buried in a settings menu.
+    </div>
+  </div>
+</section>
+
+<!-- ============ NFR ============ -->
+<section class="block" id="nfr">
+  <div class="section-head"><span class="num">11</span><h2>Non-Functional Requirements</h2><hr class="rule"></div>
+  <table>
+    <tr><th>Category</th><th>Requirement</th></tr>
+    <tr><td>Platform</td><td>Native iOS and Android apps from a shared design system, distributed via the App Store and Google Play</td></tr>
+    <tr><td>Performance</td><td>Dashboard loads in ≤2 seconds on a typical mid-range Android device on a 3G-equivalent connection</td></tr>
+    <tr><td>Offline support</td><td>Core logging works fully offline via on-device storage, with automatic background sync and no duplicate records</td></tr>
+    <tr><td>Data cost</td><td>Small install size and minimal background data use, given documented data-cost sensitivity in the target market</td></tr>
+    <tr><td>Security</td><td>Health data encrypted at rest and in transit; passwords hashed; secure, refreshable session tokens</td></tr>
+    <tr><td>Privacy</td><td>Discreet Mode, App Lock, and no health details in lock-screen notification previews by default</td></tr>
+    <tr><td>App store compliance</td><td>Meets Apple App Store Review Guidelines and Google Play health-content policy — no diagnostic claims, clear disclaimers, accurate data-safety labeling</td></tr>
+    <tr><td>Accessibility</td><td>Legible type and contrast for a wide range of literacy and vision levels; plain-language copy throughout</td></tr>
+    <tr><td>Localization</td><td>English at launch, with Nigerian Pidgin-inflected tone; full Yoruba/Hausa/Igbo localization considered post-launch based on usage data</td></tr>
+  </table>
+</section>
+
+<!-- ============ DATA MODEL ============ -->
+<section class="block" id="data">
+  <div class="section-head"><span class="num">12</span><h2>Data Model &amp; Business Rules</h2><hr class="rule"></div>
+  <table>
+    <tr><th>Entity</th><th>Key Attributes</th><th>Relationship</th></tr>
+    <tr><td>User</td><td>id, email/phone, password_hash, age, diagnosis_status</td><td>Has many of the below</td></tr>
+    <tr><td>HealthAssessment</td><td>answers[], result, flagged, completed_at</td><td>Belongs to User</td></tr>
+    <tr><td>Cycle</td><td>start_date, end_date, predicted_next_date</td><td>Belongs to User</td></tr>
+    <tr><td>SymptomLog</td><td>symptom_type, severity, note, logged_at</td><td>Belongs to User</td></tr>
+    <tr><td>WeightLog</td><td>weight_value, unit, logged_at</td><td>Belongs to User</td></tr>
+    <tr><td>MoodCheckIn</td><td>mood_value, note, logged_at</td><td>Belongs to User</td></tr>
+    <tr><td>JournalEntry</td><td>text, tagged_symptoms[], include_in_summary</td><td>Belongs to User</td></tr>
+    <tr><td>EducationalContent</td><td>title, category, body, review_status</td><td>Reviewed by Medical Advisor</td></tr>
+    <tr><td>GuidanceRequest</td><td>provider_id, data_snapshot, status, submitted_at</td><td>Belongs to User &amp; Provider</td></tr>
+    <tr><td>Settings</td><td>notification_prefs, privacy_prefs, discreet_mode_enabled</td><td>Belongs to User (1:1)</td></tr>
+  </table>
+  <h4 style="font-size:16px;">Business Rules</h4>
+  <ul style="font-size:14.5px;">
+    <li>Users may only view or edit their own records; no future dates on any log.</li>
+    <li>The assessment result is never labeled a diagnosis; a flagged pattern always triggers the reviewed escalation message.</li>
+    <li>Journal entries and unshared data stay private unless explicitly opted into a summary or guidance request.</li>
+    <li>All educational content is reviewed and approved by a qualified Medical Advisor before publishing.</li>
+    <li>Consent is recorded, with version and timestamp, before any health data is collected.</li>
+    <li>Only verified, credentialed providers may receive Guidance requests.</li>
+  </ul>
+</section>
+
+<!-- ============ ROADMAP ============ -->
+<section class="block" id="roadmap">
+  <div class="section-head"><span class="num">13</span><h2>Roadmap</h2><hr class="rule"></div>
+  <div class="roadmap">
+    <div class="phase"><span class="ph-num">PHASE 1</span><h4>MVP</h4><p>Assessment, tracking, education, health summary, lightweight guidance. Native iOS &amp; Android launch.</p></div>
+    <div class="phase"><span class="ph-num">PHASE 2</span><h4>Habits</h4><p>Medication tracking, nutrition &amp; lifestyle coaching, expanded content depth, first localization pass.</p></div>
+    <div class="phase"><span class="ph-num">PHASE 3</span><h4>Care access</h4><p>Full doctor directory, real-time appointment booking, health records &amp; lab uploads.</p></div>
+    <div class="phase"><span class="ph-num">PHASE 4</span><h4>Community</h4><p>In-app community, informed by an external pilot group run since MVP launch.</p></div>
+  </div>
+</section>
+
+<!-- ============ READINESS ============ -->
+<section class="block" id="readiness">
+  <div class="section-head"><span class="num">14</span><h2>Release Readiness Checklist</h2><hr class="rule"></div>
+  <ul class="checklist">
+    <li>PRD reviewed and approved by all stakeholders, including Medical Advisor and Legal/Compliance</li>
+    <li>UX designs and prototype usability-tested with representative users</li>
+    <li>All Must-Have MVP features development-complete for iOS and Android</li>
+    <li>QA complete, including offline and low-connectivity scenarios</li>
+    <li>Security review complete — encryption, auth, access control</li>
+    <li>Medical review complete for assessment logic, escalation rules, and all educational content</li>
+    <li>Data Protection Impact Assessment completed and reviewed</li>
+    <li>Apple App Store and Google Play submission requirements confirmed, including health-content and data-safety labeling</li>
+    <li>Provider pool for Request Guidance recruited and credential-verified</li>
+    <li>Beta testing (TestFlight / Play Internal Testing) complete with feedback incorporated</li>
+    <li>Go-live approval obtained from all stakeholders</li>
+  </ul>
+</section>
+
+<!-- ============ COMPLIANCE ============ -->
+<section class="block" id="compliance">
+  <div class="section-head"><span class="num">15</span><h2>Privacy &amp; Compliance</h2><hr class="rule"></div>
+  <p>Health data is classified as sensitive personal data under the Nigeria Data Protection Act (NDPA) 2023. This requires:</p>
+  <ul style="font-size:14.5px;">
+    <li>Explicit, recorded consent as the legal basis for all health-data processing.</li>
+    <li>A Data Protection Impact Assessment completed before public launch.</li>
+    <li>A documented decision on data hosting location and any cross-border transfer.</li>
+    <li>Planning for registration with the Nigeria Data Protection Commission — likely required given health-sector processing and realistic early user volume.</li>
+    <li>A Medical Advisor-approved escalation protocol for concerning assessment or mood input.</li>
+    <li>Data export and permanent deletion available to users at any time.</li>
+  </ul>
+</section>
+
+<!-- ============ RISKS ============ -->
+<section class="block" id="risks">
+  <div class="section-head"><span class="num">16</span><h2>Risks &amp; Open Questions</h2><hr class="rule"></div>
+  <table>
+    <tr><th>Risk</th><th>Mitigation</th></tr>
+    <tr><td>A close, already-live competitor (VivaFemini) in the same niche</td><td>Differentiate on assessment rigor and pattern-tracking depth, not feature breadth</td></tr>
+    <tr><td>Assessment creates false reassurance or alarm</td><td>Mandatory Medical Advisor sign-off and escalation protocol as a launch blocker</td></tr>
+    <tr><td>Stigma-driven non-adoption on a shared or visible device</td><td>Discreet Mode, App Lock, and non-revealing notifications from day one</td></tr>
+    <tr><td>Low connectivity / high data cost limiting engagement</td><td>Offline-first logging, lightweight app, background sync</td></tr>
+    <tr><td>Insufficient provider capacity for Guidance requests</td><td>Honest wait-time messaging; recruit providers ahead of launch</td></tr>
+  </table>
+  <p style="font-size:14.5px;"><strong>Open for stakeholder decision:</strong> long-term monetization model (a paid tier would need to run through Apple/Google in-app purchase for any digital subscription, per store policy); which organization supplies the initial verified provider pool; specific data-hosting decision for NDPA sign-off.</p>
+</section>
+
+</div>
+
+<footer>
+  <div class="brandmark">Hornomi</div>
+  Track. Understand. Prepare. Connect.
+</footer>
+
+</body>
+</html>
