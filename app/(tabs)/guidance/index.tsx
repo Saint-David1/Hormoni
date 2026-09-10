@@ -38,7 +38,7 @@ export default function GuidanceScreen() {
     setTimeout(() => {
       const botMessage: Message = {
         id: (Date.now() + 1).toString(),
-        text: '[Sample — pending Medical Advisor review] Thank you for sharing. I recommend checking our Education Hub for articles on this topic. If you are experiencing severe symptoms, please contact a healthcare professional directly.',
+        text: 'Thank you for sharing. I recommend checking our Education Hub for articles on this topic. If you are experiencing severe symptoms, please contact a healthcare professional directly.',
         isUser: false,
       };
       setMessages(prev => [...prev, botMessage]);
@@ -54,7 +54,7 @@ export default function GuidanceScreen() {
       >
         <Callout 
           variant="safety"
-          message="// MEDICAL-REVIEW-REQUIRED: Responses are automated placeholders and not medical advice." 
+          message="Responses here are automated and not medical advice. For urgent or severe symptoms, please contact a healthcare professional directly."
           style={styles.disclaimer}
         />
 
@@ -99,7 +99,7 @@ const styles = StyleSheet.create({
   userBubble: { alignSelf: 'flex-end', backgroundColor: colors.primary, borderBottomRightRadius: 4 },
   botBubble: { alignSelf: 'flex-start', backgroundColor: colors.surface, borderBottomLeftRadius: 4, borderWidth: 1, borderColor: colors.line },
   messageText: { fontFamily: typography.body, fontSize: 16, lineHeight: 22 },
-  userText: { color: colors.surface },
+  userText: { color: colors.onBrand },
   botText: { color: colors.ink },
   inputContainer: { flexDirection: 'row', padding: spacing.md, backgroundColor: colors.surface, borderTopWidth: 1, borderColor: colors.line, alignItems: 'center' },
   input: { flex: 1, backgroundColor: colors.background, borderWidth: 1, borderColor: colors.line, borderRadius: 20, paddingHorizontal: spacing.md, paddingTop: spacing.sm, paddingBottom: spacing.sm, maxHeight: 100, fontFamily: typography.body, fontSize: 16 },

@@ -1,7 +1,16 @@
 import * as SQLite from 'expo-sqlite';
 
 export type SyncAction = 'INSERT' | 'UPDATE' | 'DELETE';
-export type SyncTable = 'cycles' | 'symptom_logs' | 'weight_logs' | 'mood_checkins';
+export type SyncTable =
+  | 'cycles'
+  | 'symptom_logs'
+  | 'weight_logs'
+  | 'mood_checkins'
+  | 'journal_entries'
+  | 'exercise_logs'
+  | 'sleep_logs'
+  | 'hydration_logs'
+  | 'habit_completions';
 
 export interface SyncQueueItem {
   id: number;

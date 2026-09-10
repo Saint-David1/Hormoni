@@ -1,14 +1,27 @@
-import React from 'react';
-import { View, Text, StyleSheet, SafeAreaView, ScrollView, Switch, Alert, TouchableOpacity } from 'react-native';
+import React, { useState } from 'react';
+import { View, Text, StyleSheet, SafeAreaView, ScrollView, Switch, Alert, TouchableOpacity, ActivityIndicator } from 'react-native';
 import { useRouter } from 'expo-router';
-import { colors, typography, spacing } from '../../../theme/tokens';
-import { Card } from '../../../components';
+import { Ionicons } from '@expo/vector-icons';
+import { colors, spacing, textStyles } from '../../../theme/tokens';
+import { Card, Button } from '../../../components';
 import { useAuthStore } from '../../../store/authStore';
 import { supabase } from '../../../lib/supabase';
+import { deleteAllUserData } from '../../../lib/account';
+
+function Row({ icon, label, onPress }: { icon: keyof typeof Ionicons.glyphMap; label: string; onPress: () => void }) {
+  return (
+    <TouchableOpacity style={styles.row} onPress={onPress}>
+      <Ionicons name={icon} size={20} color={colors.inkSoft} style={styles.rowIcon} />
+      <Text style={[textStyles.body, styles.rowLabel]}>{label}</Text>
+      <Ionicons name="chevron-forward" size={18} color={colors.inkFaint} />
+    </TouchableOpacity>
+  );
+}
 
 export default function ProfileScreen() {
   const router = useRouter();
-  const { user, biometricEnabled, setBiometricEnabled, setSession } = useAuthStore();
+  const { user, biometricEnabled, setBiometricEnabled, setSession, setUser } = useAuthStore();
+  const [deleting, setDeleting] = useState(false);
 
   const handleSignOut = async () => {
     await supabase.auth.signOut();
@@ -18,13 +31,27 @@ export default function ProfileScreen() {
   const handleDeleteAccount = () => {
     Alert.alert(
       'Delete Account',
-      'Are you sure you want to permanently delete your account and all associated health data?',
+      'This permanently erases all of your logged cycles, symptoms, weight, mood, and journal data. Your login itself will be disabled and fully removed by our team — this step just wipes the data immediately.',
       [
         { text: 'Cancel', style: 'cancel' },
-        { 
-          text: 'Delete', 
+        {
+          text: 'Delete My Data',
           style: 'destructive',
-          onPress: () => Alert.alert('Action Required', 'Please contact support to complete account deletion.')
+          onPress: async () => {
+            if (!user) return;
+            setDeleting(true);
+            try {
+              await deleteAllUserData(user.id);
+              await supabase.auth.signOut();
+              setSession(null);
+              setUser(null);
+              Alert.alert('Data Deleted', 'Your health data has been erased. Contact support to finish removing your login credentials from our systems.');
+            } catch (error) {
+              Alert.alert('Deletion Failed', error instanceof Error ? error.message : 'Please try again or contact support.');
+            } finally {
+              setDeleting(false);
+            }
+          },
         },
       ]
     );
@@ -33,52 +60,51 @@ export default function ProfileScreen() {
   return (
     <SafeAreaView style={styles.container}>
       <ScrollView contentContainerStyle={styles.content}>
-        
         <View style={styles.header}>
-          <Text style={styles.title}>Account</Text>
-          <Text style={styles.email}>{user?.email}</Text>
+          <Text style={[textStyles.screenTitle, { color: colors.ink }]}>Profile</Text>
+          <Text style={[textStyles.body, styles.email]}>{user?.email}</Text>
         </View>
 
-        <Card style={styles.card}>
-          <Text style={styles.sectionTitle}>Settings</Text>
-          
-          <View style={styles.row}>
-            <Text style={styles.rowLabel}>Biometric App Lock</Text>
-            <Switch 
+        <Card tint="fertile">
+          <Text style={[textStyles.bodyStrong, { color: colors.ink }]}>Need professional support?</Text>
+          <Text style={[textStyles.body, styles.supportText]}>
+            Request a consultation, or chat with our virtual assistant for general guidance.
+          </Text>
+          <View style={styles.supportButtons}>
+            <Button label="Speak to a Doctor" size="sm" onPress={() => router.push('/(tabs)/profile/speak-to-doctor')} style={styles.supportButton} />
+            <Button label="Ask the Advisor" size="sm" variant="outline" onPress={() => router.push('/(tabs)/guidance')} style={styles.supportButton} />
+          </View>
+        </Card>
+
+        <Text style={[textStyles.caption, styles.sectionLabel]}>Account</Text>
+        <Card style={styles.sectionCard}>
+          <View style={styles.switchRow}>
+            <Text style={[textStyles.body, { color: colors.ink }]}>Biometric App Lock</Text>
+            <Switch
               value={biometricEnabled}
               onValueChange={setBiometricEnabled}
-              trackColor={{ false: colors.line, true: colors.primarySoft }}
-              thumbColor={biometricEnabled ? colors.primary : colors.inkSoft}
+              trackColor={{ false: colors.bgWash, true: colors.primarySoft }}
+              thumbColor={biometricEnabled ? colors.primary : colors.inkFaint}
             />
           </View>
         </Card>
 
-        <Card style={styles.card}>
-          <Text style={styles.sectionTitle}>Data & Privacy</Text>
-          
-          <TouchableOpacity style={styles.rowAction} onPress={() => router.push('/(tabs)/profile/export')}>
-            <Text style={styles.actionText}>Export My Health Data</Text>
-          </TouchableOpacity>
-          
-          <View style={styles.divider} />
-          
-          <TouchableOpacity style={styles.rowAction} onPress={() => router.push('/(tabs)/profile/legal')}>
-            <Text style={styles.actionText}>Legal & Compliance</Text>
-          </TouchableOpacity>
+        <Text style={[textStyles.caption, styles.sectionLabel]}>Data & Privacy</Text>
+        <Card style={styles.sectionCard}>
+          <Row icon="stats-chart-outline" label="Health Summary" onPress={() => router.push('/(tabs)/profile/health-summary')} />
+          <Row icon="notifications-outline" label="Reminders" onPress={() => router.push('/(tabs)/profile/reminders')} />
+          <Row icon="download-outline" label="Export My Health Data" onPress={() => router.push('/(tabs)/profile/export')} />
+          <Row icon="document-text-outline" label="Legal & Compliance" onPress={() => router.push('/(tabs)/profile/legal')} />
         </Card>
 
-        <Card style={[styles.card, styles.dangerCard]}>
-          <TouchableOpacity style={styles.rowAction} onPress={handleSignOut}>
-            <Text style={[styles.actionText, styles.dangerText]}>Sign Out</Text>
+        <Card style={[styles.sectionCard, styles.dangerCard]}>
+          <TouchableOpacity style={styles.row} onPress={handleSignOut}>
+            <Text style={[textStyles.body, styles.dangerText]}>Sign Out</Text>
           </TouchableOpacity>
-          
-          <View style={styles.divider} />
-          
-          <TouchableOpacity style={styles.rowAction} onPress={handleDeleteAccount}>
-            <Text style={[styles.actionText, styles.dangerText]}>Delete Account</Text>
+          <TouchableOpacity style={styles.row} onPress={handleDeleteAccount} disabled={deleting}>
+            {deleting ? <ActivityIndicator color={colors.errorMuted} /> : <Text style={[textStyles.body, styles.dangerText]}>Delete Account</Text>}
           </TouchableOpacity>
         </Card>
-
       </ScrollView>
     </SafeAreaView>
   );
@@ -86,17 +112,18 @@ export default function ProfileScreen() {
 
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: colors.background },
-  content: { padding: spacing.xl },
-  header: { marginBottom: spacing.xl },
-  title: { fontFamily: typography.display, fontSize: 32, color: colors.ink, marginBottom: spacing.xs },
-  email: { fontFamily: typography.body, fontSize: 16, color: colors.inkSoft },
-  card: { padding: spacing.xl, marginBottom: spacing.lg },
-  sectionTitle: { fontFamily: typography.body, fontSize: 14, fontWeight: '600', color: colors.inkSoft, marginBottom: spacing.md, textTransform: 'uppercase', letterSpacing: 1 },
-  row: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
-  rowLabel: { fontFamily: typography.body, fontSize: 16, color: colors.ink },
-  rowAction: { paddingVertical: spacing.sm },
-  actionText: { fontFamily: typography.body, fontSize: 16, color: colors.ink },
-  divider: { height: 1, backgroundColor: colors.line, marginVertical: spacing.md },
-  dangerCard: { borderColor: '#ffebee', borderWidth: 1, backgroundColor: '#fffafa' },
-  dangerText: { color: colors.error, fontWeight: '600' },
+  content: { padding: spacing.screen, paddingBottom: 120 },
+  header: { marginBottom: spacing.lg },
+  email: { color: colors.inkSoft },
+  supportText: { color: colors.inkSoft, marginTop: spacing.xs, marginBottom: spacing.md },
+  supportButtons: { flexDirection: 'row', gap: spacing.sm },
+  supportButton: { flex: 1 },
+  sectionLabel: { color: colors.inkFaint, marginTop: spacing.lg, marginBottom: spacing.sm, marginLeft: spacing.xs },
+  sectionCard: { paddingVertical: spacing.xs },
+  row: { flexDirection: 'row', alignItems: 'center', paddingVertical: spacing.md, gap: spacing.sm },
+  rowIcon: { width: 24 },
+  rowLabel: { flex: 1, color: colors.ink },
+  switchRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', paddingVertical: spacing.xs },
+  dangerCard: { backgroundColor: colors.errorMutedSoft },
+  dangerText: { color: colors.errorMuted, fontWeight: '600' },
 });

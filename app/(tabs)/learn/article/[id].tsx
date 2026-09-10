@@ -3,13 +3,11 @@ import { View, Text, StyleSheet, ScrollView, SafeAreaView } from 'react-native';
 import { useLocalSearchParams } from 'expo-router';
 import Markdown from 'react-native-markdown-display';
 import { colors, typography, spacing } from '../../../../theme/tokens';
-import { Callout } from '../../../../components';
+import { Callout, TopAppBar } from '../../../../components';
 
 const ARTICLE_CONTENT: Record<string, string> = {
   '1': `
 # Managing Insulin Resistance with Local Staples
-
-**// MEDICAL-REVIEW-REQUIRED: [Sample — pending Medical Advisor review]**
 
 When managing PCOS, insulin resistance is a common challenge. However, you don't need to completely abandon traditional Nigerian foods. The key is portion control and choosing low-glycemic index (GI) options.
 
@@ -28,8 +26,6 @@ Nigerian vegetable soups are excellent for PCOS diets because they are packed wi
   '2': `
 # Understanding Irregular Cycles
 
-**// MEDICAL-REVIEW-REQUIRED: [Sample — pending Medical Advisor review]**
-
 Irregular menstrual cycles are a hallmark of PCOS, but understanding the underlying mechanisms can empower you to manage them better.
 
 ## Why Does It Happen?
@@ -43,8 +39,6 @@ While occasional irregularity is common, you should consult a healthcare provide
   `,
   '3': `
 # Stress and Cortisol in PCOS
-
-**// MEDICAL-REVIEW-REQUIRED: [Sample — pending Medical Advisor review]**
 
 Managing PCOS isn't just about diet and exercise; managing your stress levels is equally important. 
 
@@ -64,8 +58,9 @@ export default function ArticleScreen() {
 
   return (
     <SafeAreaView style={styles.container}>
+      <TopAppBar title="Article" />
       <ScrollView contentContainerStyle={styles.content}>
-        <Callout 
+        <Callout
           variant="warning"
           title="Disclaimer" 
           message="The following content is for informational purposes only and does not constitute medical advice." 

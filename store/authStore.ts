@@ -9,12 +9,18 @@ interface AuthState {
   hasConsented: boolean;
   onboardingCompleted: boolean;
   biometricEnabled: boolean;
+  // In-memory only (not persisted) — carries the user's onboarding selections
+  // from profile-setup/assessment forward to the personalize recap screen.
+  onboardingGoals: string[];
+  onboardingFocusAreas: string[];
   setUser: (user: User | null) => void;
   setSession: (session: Session | null) => void;
   setHasSeenIntro: (seen: boolean) => void;
   setHasConsented: (consented: boolean) => void;
   setOnboardingCompleted: (completed: boolean) => void;
   setBiometricEnabled: (enabled: boolean) => void;
+  setOnboardingGoals: (goals: string[]) => void;
+  setOnboardingFocusAreas: (areas: string[]) => void;
   loadLocalState: () => Promise<void>;
 }
 
@@ -25,6 +31,10 @@ export const useAuthStore = create<AuthState>((set) => ({
   hasConsented: false,
   onboardingCompleted: false,
   biometricEnabled: false,
+  onboardingGoals: [],
+  onboardingFocusAreas: [],
+  setOnboardingGoals: (goals) => set({ onboardingGoals: goals }),
+  setOnboardingFocusAreas: (areas) => set({ onboardingFocusAreas: areas }),
   setUser: (user) => set({ user }),
   setSession: (session) => set({ session }),
   setHasSeenIntro: async (seen) => {

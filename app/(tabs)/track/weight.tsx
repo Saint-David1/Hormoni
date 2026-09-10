@@ -1,27 +1,16 @@
-import React, { useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import { View, Text, StyleSheet, SafeAreaView, ScrollView, TextInput, Alert, TouchableOpacity } from 'react-native';
-import { useRouter } from 'expo-router';
+import { useRouter, useFocusEffect } from 'expo-router';
 import { LineChart } from 'react-native-gifted-charts';
-import { colors, typography, spacing } from '../../../theme/tokens';
-import { Button, Card } from '../../../components';
+import { colors, spacing, textStyles } from '../../../theme/tokens';
+import { Button, Card, TopAppBar } from '../../../components';
 import { queueAction } from '../../../lib/db';
+import { syncOfflineData } from '../../../lib/syncService';
 import { useAuthStore } from '../../../store/authStore';
+import { generateUUID } from '../../../lib/uuid';
+import { supabase } from '../../../lib/supabase';
 
-const generateUUID = () => {
-  return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
-    const r = Math.random() * 16 | 0;
-    const v = c === 'x' ? r : (r & 0x3 | 0x8);
-    return v.toString(16);
-  });
-};
-
-const MOCK_DATA = [
-  { value: 68, label: 'Mon' },
-  { value: 67.8, label: 'Tue' },
-  { value: 68.2, label: 'Wed' },
-  { value: 67.5, label: 'Thu' },
-  { value: 67.4, label: 'Fri' },
-];
+const WEEKDAY_LABELS = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
 
 export default function WeightTrackerScreen() {
   const router = useRouter();
@@ -29,34 +18,56 @@ export default function WeightTrackerScreen() {
   const [loading, setLoading] = useState(false);
   const [weight, setWeight] = useState('');
   const [unit, setUnit] = useState<'kg' | 'lbs'>('kg');
+  const [history, setHistory] = useState<{ value: number; label: string }[]>([]);
+
+  const loadHistory = useCallback(async () => {
+    if (!user) return;
+    const { data, error } = await supabase
+      .from('weight_logs')
+      .select('weight_value, logged_at')
+      .eq('user_id', user.id)
+      .order('logged_at', { ascending: true })
+      .limit(7);
+
+    if (!error && data) {
+      setHistory(
+        data.map((row) => ({
+          value: row.weight_value,
+          label: WEEKDAY_LABELS[new Date(row.logged_at).getDay()],
+        }))
+      );
+    }
+  }, [user]);
+
+  useFocusEffect(
+    useCallback(() => {
+      loadHistory();
+    }, [loadHistory])
+  );
 
   const handleSave = async () => {
     if (!user || !weight) return;
     setLoading(true);
 
     const recordId = generateUUID();
-    const today = new Date().toISOString().split('T')[0];
-    
-    // convert to kg for db storage standard if lbs
-    let weightVal = parseFloat(weight);
-    if (unit === 'lbs') {
-      weightVal = weightVal * 0.453592;
-    }
+    const weightVal = parseFloat(weight);
 
     const payload = {
       id: recordId,
       user_id: user.id,
-      date: today,
-      weight_kg: weightVal,
-      created_at: new Date().toISOString(),
+      weight_value: weightVal,
+      unit,
+      logged_at: new Date().toISOString(),
     };
 
     try {
       await queueAction('weight_logs', 'INSERT', recordId, payload);
+      syncOfflineData();
       Alert.alert('Saved', 'Weight logged successfully.', [
         { text: 'OK', onPress: () => router.back() }
       ]);
     } catch (error) {
+      console.error('Failed to save entry', error);
       Alert.alert('Error', 'Failed to save entry.');
     } finally {
       setLoading(false);
@@ -65,40 +76,44 @@ export default function WeightTrackerScreen() {
 
   return (
     <SafeAreaView style={styles.container}>
+      <TopAppBar title="Log Weight" />
       <ScrollView contentContainerStyle={styles.content}>
-        <Text style={styles.title}>Log Weight</Text>
-        <Text style={styles.subtitle}>Keep track of your weight over time.</Text>
+        <Text style={[textStyles.body, styles.subtitle]}>Keep track of your weight over time.</Text>
 
         <Card style={styles.chartCard}>
-          <Text style={styles.chartTitle}>Recent History</Text>
+          <Text style={[textStyles.bodyStrong, styles.chartTitle]}>Recent History</Text>
           <View style={styles.chartContainer}>
-            <LineChart
-              data={MOCK_DATA}
-              width={280}
-              height={150}
-              color={colors.primary}
-              thickness={3}
-              dataPointsColor={colors.primary}
-              hideRules
-              hideYAxisText
-              xAxisLabelTextStyle={{ color: colors.inkSoft, fontSize: 10 }}
-            />
+            {history.length > 1 ? (
+              <LineChart
+                data={history}
+                width={280}
+                height={150}
+                color={colors.primary}
+                thickness={3}
+                dataPointsColor={colors.primary}
+                hideRules
+                hideYAxisText
+                xAxisLabelTextStyle={{ color: colors.inkSoft, fontSize: 10 }}
+              />
+            ) : (
+              <Text style={[textStyles.body, styles.emptyText]}>Log a few entries to see your trend here.</Text>
+            )}
           </View>
         </Card>
 
         <Card style={styles.inputCard}>
           <View style={styles.headerRow}>
-            <Text style={styles.label}>Today's Weight</Text>
+            <Text style={[textStyles.bodyStrong, styles.label]}>Today's Weight</Text>
             <View style={styles.unitToggle}>
               <TouchableOpacity onPress={() => setUnit('kg')} style={[styles.unitBtn, unit === 'kg' && styles.unitBtnActive]}>
-                <Text style={[styles.unitText, unit === 'kg' && styles.unitTextActive]}>kg</Text>
+                <Text style={[textStyles.caption, styles.unitText, unit === 'kg' && styles.unitTextActive]}>kg</Text>
               </TouchableOpacity>
               <TouchableOpacity onPress={() => setUnit('lbs')} style={[styles.unitBtn, unit === 'lbs' && styles.unitBtnActive]}>
-                <Text style={[styles.unitText, unit === 'lbs' && styles.unitTextActive]}>lbs</Text>
+                <Text style={[textStyles.caption, styles.unitText, unit === 'lbs' && styles.unitTextActive]}>lbs</Text>
               </TouchableOpacity>
             </View>
           </View>
-          
+
           <TextInput
             style={styles.input}
             placeholder={`e.g. ${unit === 'kg' ? '68.5' : '150.0'}`}
@@ -120,19 +135,19 @@ export default function WeightTrackerScreen() {
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: colors.background },
   content: { padding: spacing.xl },
-  title: { fontFamily: typography.display, fontSize: 32, color: colors.ink, marginBottom: spacing.xs },
-  subtitle: { fontFamily: typography.body, fontSize: 16, color: colors.inkSoft, marginBottom: spacing.xl },
+  subtitle: { color: colors.inkSoft, marginBottom: spacing.xl },
   chartCard: { padding: spacing.xl, marginBottom: spacing.lg },
-  chartTitle: { fontFamily: typography.body, fontSize: 16, fontWeight: '600', color: colors.ink, marginBottom: spacing.md },
-  chartContainer: { alignItems: 'center' },
+  chartTitle: { color: colors.ink, marginBottom: spacing.md },
+  chartContainer: { alignItems: 'center', minHeight: 150, justifyContent: 'center' },
+  emptyText: { color: colors.inkSoft, textAlign: 'center' },
   inputCard: { padding: spacing.xl },
   headerRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: spacing.md },
-  label: { fontFamily: typography.body, fontSize: 16, fontWeight: '600', color: colors.ink },
-  unitToggle: { flexDirection: 'row', backgroundColor: colors.surface, borderRadius: 8, borderWidth: 1, borderColor: colors.line },
-  unitBtn: { paddingHorizontal: 12, paddingVertical: 6, borderRadius: 6 },
+  label: { color: colors.ink },
+  unitToggle: { flexDirection: 'row', backgroundColor: colors.surfaceAlt, borderRadius: 14, borderWidth: 1, borderColor: colors.bgWash },
+  unitBtn: { paddingHorizontal: 12, paddingVertical: 6, borderRadius: 10 },
   unitBtnActive: { backgroundColor: colors.primarySoft },
-  unitText: { fontFamily: typography.mono, fontSize: 12, color: colors.inkSoft },
+  unitText: { color: colors.inkSoft },
   unitTextActive: { color: colors.primary, fontWeight: 'bold' },
-  input: { borderWidth: 1, borderColor: colors.line, borderRadius: 8, padding: spacing.md, fontFamily: typography.body, fontSize: 24, backgroundColor: colors.surface, textAlign: 'center' },
-  footer: { padding: spacing.xl, borderTopWidth: 1, borderColor: colors.line, backgroundColor: colors.surface },
+  input: { borderWidth: 1, borderColor: colors.bgWash, borderRadius: 14, padding: spacing.md, fontFamily: 'Poppins_600SemiBold', fontSize: 24, backgroundColor: colors.surfaceAlt, textAlign: 'center' },
+  footer: { padding: spacing.xl, borderTopWidth: 1, borderColor: colors.bgWash, backgroundColor: colors.surfaceAlt },
 });

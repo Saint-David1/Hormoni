@@ -1,17 +1,38 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { View, Text, StyleSheet, SafeAreaView } from 'react-native';
 import { useRouter } from 'expo-router';
-import { Button, Card, IconChip } from '../../components';
-import { colors, typography, spacing } from '../../theme/tokens';
+import { Button, IconChip } from '../../components';
+import { colors, textStyles, spacing } from '../../theme/tokens';
 import { useAuthStore } from '../../store/authStore';
+
+const STEPS = [
+  {
+    emoji: '👋',
+    title: 'Your PCOS journey is personal.',
+    subtitle: 'Hornomi helps you track your cycle, symptoms, and lifestyle, and understand the patterns that matter to you.',
+    cta: 'Get Started',
+  },
+  {
+    emoji: '💛',
+    title: 'Managing PCOS can feel like a lot.',
+    subtitle: "It's normal for it to feel confusing, stressful, or overwhelming sometimes. Hormoni is here to make tracking it a little easier.",
+    cta: 'Continue',
+  },
+];
 
 export default function IntroScreen() {
   const router = useRouter();
-  const setHasSeenIntro = useAuthStore(state => state.setHasSeenIntro);
+  const setHasSeenIntro = useAuthStore((state) => state.setHasSeenIntro);
+  const [step, setStep] = useState(0);
+  const current = STEPS[step];
 
-  const handleGetStarted = () => {
-    setHasSeenIntro(true);
-    router.replace('/auth/login');
+  const handleNext = () => {
+    if (step < STEPS.length - 1) {
+      setStep(step + 1);
+    } else {
+      setHasSeenIntro(true);
+      router.replace('/auth/login');
+    }
   };
 
   return (
@@ -19,14 +40,14 @@ export default function IntroScreen() {
       <View style={styles.content}>
         <View style={styles.header}>
           <IconChip size={64}>
-            <Text style={{ fontSize: 32 }}>👋</Text>
+            <Text style={{ fontSize: 32 }}>{current.emoji}</Text>
           </IconChip>
-          <Text style={styles.title}>Welcome to Hornomi</Text>
-          <Text style={styles.subtitle}>Your companion for understanding and tracking PCOS.</Text>
+          <Text style={[textStyles.screenTitle, styles.title]}>{current.title}</Text>
+          <Text style={[textStyles.body, styles.subtitle]}>{current.subtitle}</Text>
         </View>
 
         <View style={styles.footer}>
-          <Button label="Get Started" onPress={handleGetStarted} style={styles.button} />
+          <Button label={current.cta} onPress={handleNext} style={styles.button} />
         </View>
       </View>
     </SafeAreaView>
@@ -37,8 +58,8 @@ const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: colors.background },
   content: { flex: 1, padding: spacing.xl, justifyContent: 'space-between' },
   header: { marginTop: spacing.xxl, alignItems: 'center' },
-  title: { fontFamily: typography.display, fontSize: 32, color: colors.ink, marginTop: spacing.lg, marginBottom: spacing.xs, textAlign: 'center' },
-  subtitle: { fontFamily: typography.body, fontSize: 16, color: colors.inkSoft, textAlign: 'center', lineHeight: 24 },
+  title: { color: colors.ink, marginTop: spacing.lg, marginBottom: spacing.xs, textAlign: 'center' },
+  subtitle: { color: colors.inkSoft, textAlign: 'center', lineHeight: 24 },
   button: { width: '100%', marginBottom: spacing.md },
   footer: { paddingBottom: spacing.xl },
 });

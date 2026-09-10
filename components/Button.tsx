@@ -4,30 +4,26 @@ import { colors, typography, radii, spacing } from '../theme/tokens';
 
 interface ButtonProps extends TouchableOpacityProps {
   label: string;
-  variant?: 'primary' | 'secondary' | 'outline';
+  variant?: 'primary' | 'secondary' | 'outline' | 'ghost' | 'destructive';
+  size?: 'md' | 'sm';
   style?: ViewStyle;
   labelStyle?: TextStyle;
 }
 
-export const Button: React.FC<ButtonProps> = ({ label, variant = 'primary', style, labelStyle, ...props }) => {
+export const Button: React.FC<ButtonProps> = ({ label, variant = 'primary', size = 'md', style, labelStyle, ...props }) => {
   const getVariantStyles = () => {
     switch (variant) {
       case 'secondary':
-        return {
-          container: styles.secondaryContainer,
-          label: styles.secondaryLabel,
-        };
+        return { container: styles.secondaryContainer, label: styles.secondaryLabel };
       case 'outline':
-        return {
-          container: styles.outlineContainer,
-          label: styles.outlineLabel,
-        };
+        return { container: styles.outlineContainer, label: styles.outlineLabel };
+      case 'ghost':
+        return { container: styles.ghostContainer, label: styles.ghostLabel };
+      case 'destructive':
+        return { container: styles.destructiveContainer, label: styles.destructiveLabel };
       case 'primary':
       default:
-        return {
-          container: styles.primaryContainer,
-          label: styles.primaryLabel,
-        };
+        return { container: styles.primaryContainer, label: styles.primaryLabel };
     }
   };
 
@@ -35,7 +31,13 @@ export const Button: React.FC<ButtonProps> = ({ label, variant = 'primary', styl
 
   return (
     <TouchableOpacity
-      style={[styles.baseContainer, container, style, props.disabled && styles.disabledContainer]}
+      style={[
+        styles.baseContainer,
+        size === 'sm' && styles.smContainer,
+        container,
+        style,
+        props.disabled && styles.disabledContainer,
+      ]}
       activeOpacity={0.8}
       {...props}
     >
@@ -54,33 +56,24 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
+  smContainer: {
+    paddingVertical: spacing.sm,
+    paddingHorizontal: spacing.md,
+  },
   baseLabel: {
-    fontFamily: typography.body,
+    fontFamily: typography.bodySemibold,
     fontSize: 16,
-    fontWeight: '600',
   },
-  primaryContainer: {
-    backgroundColor: colors.primary,
-  },
-  primaryLabel: {
-    color: colors.surface,
-  },
-  secondaryContainer: {
-    backgroundColor: colors.primarySoft,
-  },
-  secondaryLabel: {
-    color: colors.primary,
-  },
-  outlineContainer: {
-    backgroundColor: 'transparent',
-    borderWidth: 1,
-    borderColor: colors.primary,
-  },
-  outlineLabel: {
-    color: colors.primary,
-  },
-  disabledContainer: {
-    opacity: 0.5,
-  },
+  primaryContainer: { backgroundColor: colors.primary },
+  primaryLabel: { color: colors.onBrand },
+  secondaryContainer: { backgroundColor: colors.primarySoft },
+  secondaryLabel: { color: colors.primaryPressed },
+  outlineContainer: { backgroundColor: 'transparent', borderWidth: 1, borderColor: colors.primary },
+  outlineLabel: { color: colors.primary },
+  ghostContainer: { backgroundColor: 'transparent' },
+  ghostLabel: { color: colors.primary },
+  destructiveContainer: { backgroundColor: colors.errorMutedSoft },
+  destructiveLabel: { color: colors.errorMuted },
+  disabledContainer: { opacity: 0.5 },
   disabledLabel: {},
 });

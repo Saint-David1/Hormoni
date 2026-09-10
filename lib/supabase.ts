@@ -12,6 +12,12 @@ export const supabase = createClient(supabaseUrl, supabaseAnonKey, {
     autoRefreshToken: true,
     persistSession: true,
     detectSessionInUrl: false,
+    // PKCE keeps the access/refresh tokens out of the redirect URL itself (only a
+    // short-lived, single-use `code` travels over the deep link). The implicit
+    // flow this replaced put live session tokens directly in the `hormoni://`
+    // redirect, which any app registering that same custom scheme on Android
+    // could intercept.
+    flowType: 'pkce',
   },
 })
 
@@ -30,14 +36,9 @@ export const createSessionFromUrl = async (url: string) => {
 
     if (hashOrQuery) {
       const searchParams = new URLSearchParams(hashOrQuery);
-      const accessToken = searchParams.get('access_token');
-      const refreshToken = searchParams.get('refresh_token');
-
-      if (accessToken && refreshToken) {
-        const { data, error } = await supabase.auth.setSession({
-          access_token: accessToken,
-          refresh_token: refreshToken,
-        });
+      const code = searchParams.get('code');
+      if (code) {
+        const { data, error } = await supabase.auth.exchangeCodeForSession(code);
         return { data, error };
       }
     }

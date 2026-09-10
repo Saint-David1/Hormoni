@@ -1,16 +1,18 @@
 import { useFonts } from 'expo-font';
-import { Fraunces_600SemiBold, Fraunces_700Bold, Fraunces_900Black } from '@expo-google-fonts/fraunces';
-import { Inter_400Regular, Inter_500Medium, Inter_600SemiBold } from '@expo-google-fonts/inter';
-import { IBMPlexMono_400Regular, IBMPlexMono_500Medium, IBMPlexMono_600SemiBold } from '@expo-google-fonts/ibm-plex-mono';
+import { Poppins_400Regular, Poppins_500Medium, Poppins_600SemiBold, Poppins_700Bold } from '@expo-google-fonts/poppins';
 import { DarkTheme, DefaultTheme, Stack, ThemeProvider, useRouter, useSegments } from 'expo-router';
 import * as SplashScreen from 'expo-splash-screen';
 import { useEffect } from 'react';
 import 'react-native-reanimated';
 
 import * as Linking from 'expo-linking';
+import NetInfo from '@react-native-community/netinfo';
 import { useColorScheme } from '@/components/useColorScheme';
+import { AppLockGate } from '@/components/AppLockGate';
 import { useAuthStore } from '../store/authStore';
 import { supabase, createSessionFromUrl } from '../lib/supabase';
+import { initDb } from '../lib/db';
+import { syncOfflineData } from '../lib/syncService';
 
 export {
   // Catch any errors thrown by the Layout component.
@@ -32,7 +34,15 @@ export default function RootLayout() {
 
   useEffect(() => {
     loadLocalState();
-    
+    initDb().then(() => syncOfflineData());
+
+    // Retry the offline queue whenever connectivity comes back.
+    const netInfoSubscription = NetInfo.addEventListener((state) => {
+      if (state.isConnected) {
+        syncOfflineData();
+      }
+    });
+
     // Handle initial deep link URL when app is launched via link
     Linking.getInitialURL().then((url) => {
       if (url) createSessionFromUrl(url);
@@ -55,20 +65,16 @@ export default function RootLayout() {
 
     return () => {
       subscription.remove();
+      netInfoSubscription();
     };
   }, []);
 
 
   const [loaded, error] = useFonts({
-    Fraunces: Fraunces_600SemiBold,
-    Fraunces_700Bold,
-    Fraunces_900Black,
-    Inter: Inter_400Regular,
-    Inter_500Medium,
-    Inter_600SemiBold,
-    IBMPlexMono: IBMPlexMono_400Regular,
-    IBMPlexMono_500Medium,
-    IBMPlexMono_600SemiBold,
+    Poppins_400Regular,
+    Poppins_500Medium,
+    Poppins_600SemiBold,
+    Poppins_700Bold,
   });
 
   // Expo Router uses Error Boundaries to catch errors in the navigation tree.
@@ -112,7 +118,7 @@ function RootLayoutNav() {
       if (!hasConsented) {
         if (segments[1] !== 'consent') router.replace('/(onboarding)/consent');
       } else if (!onboardingCompleted) {
-        if (segments[1] !== 'profile-setup' && segments[1] !== 'assessment' && segments[1] !== 'focus-summary') {
+        if (segments[1] !== 'profile-setup' && segments[1] !== 'assessment' && segments[1] !== 'personalize' && segments[1] !== 'focus-summary') {
           router.replace('/(onboarding)/profile-setup');
         }
       } else {
@@ -125,12 +131,14 @@ function RootLayoutNav() {
 
   return (
     <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
-      <Stack>
-        <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
-        <Stack.Screen name="auth" options={{ headerShown: false }} />
-        <Stack.Screen name="(onboarding)" options={{ headerShown: false }} />
-        <Stack.Screen name="modal" options={{ presentation: 'modal' }} />
-      </Stack>
+      <AppLockGate>
+        <Stack>
+          <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
+          <Stack.Screen name="auth" options={{ headerShown: false }} />
+          <Stack.Screen name="(onboarding)" options={{ headerShown: false }} />
+          <Stack.Screen name="modal" options={{ presentation: 'modal' }} />
+        </Stack>
+      </AppLockGate>
     </ThemeProvider>
   );
 }

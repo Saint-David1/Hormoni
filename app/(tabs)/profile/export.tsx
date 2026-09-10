@@ -3,8 +3,8 @@ import { View, Text, StyleSheet, SafeAreaView, ScrollView, Alert } from 'react-n
 import { useRouter } from 'expo-router';
 import * as FileSystem from 'expo-file-system/legacy';
 import * as Sharing from 'expo-sharing';
-import { colors, typography, spacing } from '../../../theme/tokens';
-import { Button, Card, Callout } from '../../../components';
+import { colors, spacing, textStyles } from '../../../theme/tokens';
+import { Button, Card, Callout, TopAppBar } from '../../../components';
 import { useAuthStore } from '../../../store/authStore';
 import { getQueue } from '../../../lib/db';
 
@@ -53,22 +53,21 @@ export default function ExportDataScreen() {
 
   return (
     <SafeAreaView style={styles.container}>
+      <TopAppBar title="Export Data" />
       <ScrollView contentContainerStyle={styles.content}>
-        
-        <Text style={styles.title}>Export Data</Text>
-        <Text style={styles.subtitle}>Download a copy of your personal health data.</Text>
+        <Text style={[textStyles.body, styles.subtitle]}>Download a copy of your personal health data.</Text>
 
-        <Callout 
+        <Callout
           variant="info"
-          message="Your data will be exported as a standard JSON file. You can save this to your files, email it to yourself, or share it with your healthcare provider." 
+          message="Your data will be exported as a standard JSON file. You can save this to your files, email it to yourself, or share it with your healthcare provider."
         />
 
         <Card style={styles.card}>
-          <Text style={styles.cardText}>
+          <Text style={[textStyles.body, styles.cardText]}>
             This export contains all your logged cycles, symptoms, weight entries, and mood check-ins. It is formatted in a structured way that is easy to parse.
           </Text>
-          <Button 
-            label={loading ? 'Generating...' : 'Export to JSON'} 
+          <Button
+            label={loading ? 'Generating...' : 'Export to JSON'}
             onPress={handleExport}
             disabled={loading}
           />
@@ -82,8 +81,7 @@ export default function ExportDataScreen() {
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: colors.background },
   content: { padding: spacing.xl },
-  title: { fontFamily: typography.display, fontSize: 32, color: colors.ink, marginBottom: spacing.xs },
-  subtitle: { fontFamily: typography.body, fontSize: 16, color: colors.inkSoft, marginBottom: spacing.xl },
+  subtitle: { color: colors.inkSoft, marginBottom: spacing.xl },
   card: { padding: spacing.xl, marginTop: spacing.md },
-  cardText: { fontFamily: typography.body, fontSize: 16, color: colors.inkSoft, lineHeight: 24, marginBottom: spacing.xl },
+  cardText: { color: colors.inkSoft, lineHeight: 24, marginBottom: spacing.xl },
 });

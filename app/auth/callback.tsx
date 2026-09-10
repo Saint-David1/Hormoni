@@ -1,18 +1,12 @@
-import React, { useEffect } from 'react';
+import React from 'react';
 import { View, Text, ActivityIndicator, StyleSheet, SafeAreaView } from 'react-native';
-import * as Linking from 'expo-linking';
-import { createSessionFromUrl } from '../../lib/supabase';
 import { colors, typography, spacing } from '../../theme/tokens';
 
+// The deep link that lands here is already consumed once, globally, by the
+// listener in app/_layout.tsx (which flips the auth store's session and lets
+// the root navigator redirect away from this screen). Re-parsing the same URL
+// here would try to exchange the same single-use PKCE code a second time.
 export default function AuthCallbackScreen() {
-  useEffect(() => {
-    Linking.getInitialURL().then((url) => {
-      if (url) {
-        createSessionFromUrl(url);
-      }
-    });
-  }, []);
-
   return (
     <SafeAreaView style={styles.container}>
       <View style={styles.content}>

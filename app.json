@@ -8,7 +8,8 @@
     "scheme": "hormoni",
     "userInterfaceStyle": "automatic",
     "ios": {
-      "supportsTablet": true
+      "supportsTablet": true,
+      "bundleIdentifier": "com.davidgee12.hormoni"
     },
     "android": {
       "adaptiveIcon": {
@@ -37,7 +38,8 @@
       ],
       "expo-font",
       "expo-sqlite",
-      "expo-sharing"
+      "expo-sharing",
+      "expo-notifications"
     ],
     "experiments": {
       "typedRoutes": true

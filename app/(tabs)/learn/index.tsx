@@ -1,8 +1,8 @@
 import React, { useState } from 'react';
 import { View, Text, StyleSheet, SafeAreaView, ScrollView, TouchableOpacity } from 'react-native';
 import { useRouter } from 'expo-router';
-import { colors, typography, spacing } from '../../../theme/tokens';
-import { Card, Pill } from '../../../components';
+import { colors, spacing, textStyles } from '../../../theme/tokens';
+import { Card, Pill, Chip, InsightHeroCard, TopAppBar } from '../../../components';
 
 const CATEGORIES = ['All', 'Diet', 'Stress', 'Cycle', 'General'];
 
@@ -34,40 +34,42 @@ export default function LearnHubScreen() {
   const router = useRouter();
   const [activeCategory, setActiveCategory] = useState('All');
 
-  const filteredArticles = activeCategory === 'All' 
-    ? ARTICLES 
+  const filteredArticles = activeCategory === 'All'
+    ? ARTICLES
     : ARTICLES.filter(a => a.category === activeCategory);
 
   return (
     <SafeAreaView style={styles.container}>
-      <View style={styles.filterContainer}>
-        <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.filterScroll}>
-          {CATEGORIES.map(cat => (
-            <TouchableOpacity 
-              key={cat} 
-              style={[styles.filterBtn, activeCategory === cat && styles.filterBtnActive]}
-              onPress={() => setActiveCategory(cat)}
-            >
-              <Text style={[styles.filterText, activeCategory === cat && styles.filterTextActive]}>{cat}</Text>
-            </TouchableOpacity>
-          ))}
-        </ScrollView>
-      </View>
-
+      <TopAppBar title="Learn" showBack={false} />
       <ScrollView contentContainerStyle={styles.content}>
+        <InsightHeroCard
+          headline="Recommended for you"
+          subheadline="Based on your focus areas"
+          stats={[
+            { label: 'Articles', value: String(ARTICLES.length) },
+            { label: 'Categories', value: String(CATEGORIES.length - 1) },
+          ]}
+        />
+
+        <View style={styles.filterRow}>
+          {CATEGORIES.map(cat => (
+            <Chip key={cat} label={cat} selected={activeCategory === cat} onPress={() => setActiveCategory(cat)} />
+          ))}
+        </View>
+
         {filteredArticles.map(article => (
-          <TouchableOpacity 
-            key={article.id} 
+          <TouchableOpacity
+            key={article.id}
             onPress={() => router.push(`/(tabs)/learn/article/${article.id}` as any)}
             style={styles.articleCard}
           >
             <Card>
               <View style={styles.cardHeader}>
-                <Pill label={article.category} variant="primary" />
-                <Text style={styles.readTime}>{article.readTime}</Text>
+                <Pill label={article.category} variant="accent" />
+                <Text style={[textStyles.caption, styles.readTime]}>{article.readTime}</Text>
               </View>
-              <Text style={styles.articleTitle}>{article.title}</Text>
-              <Text style={styles.articleExcerpt} numberOfLines={2}>{article.excerpt}</Text>
+              <Text style={[textStyles.cardTitle, styles.articleTitle]}>{article.title}</Text>
+              <Text style={[textStyles.body, styles.articleExcerpt]} numberOfLines={2}>{article.excerpt}</Text>
             </Card>
           </TouchableOpacity>
         ))}
@@ -78,16 +80,11 @@ export default function LearnHubScreen() {
 
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: colors.background },
-  filterContainer: { backgroundColor: colors.surface, paddingVertical: spacing.md, borderBottomWidth: 1, borderColor: colors.line },
-  filterScroll: { paddingHorizontal: spacing.xl, gap: spacing.sm },
-  filterBtn: { paddingHorizontal: spacing.md, paddingVertical: spacing.sm, borderRadius: 20, backgroundColor: colors.background, borderWidth: 1, borderColor: colors.line },
-  filterBtnActive: { backgroundColor: colors.primary, borderColor: colors.primary },
-  filterText: { fontFamily: typography.body, fontSize: 14, color: colors.inkSoft },
-  filterTextActive: { color: colors.surface, fontWeight: '600' },
-  content: { padding: spacing.xl, gap: spacing.md },
+  content: { padding: spacing.screen, paddingBottom: 120, gap: spacing.md },
+  filterRow: { flexDirection: 'row', flexWrap: 'wrap', gap: spacing.sm, marginBottom: spacing.sm },
   articleCard: { width: '100%' },
   cardHeader: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: spacing.sm },
-  readTime: { fontFamily: typography.mono, fontSize: 12, color: colors.inkSoft },
-  articleTitle: { fontFamily: typography.body, fontSize: 18, fontWeight: '600', color: colors.ink, marginBottom: spacing.xs },
-  articleExcerpt: { fontFamily: typography.body, fontSize: 14, color: colors.inkSoft, lineHeight: 20 },
+  readTime: { color: colors.inkSoft },
+  articleTitle: { color: colors.ink, marginBottom: spacing.xs },
+  articleExcerpt: { color: colors.inkSoft, lineHeight: 20 },
 });

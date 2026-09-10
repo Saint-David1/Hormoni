@@ -1,17 +1,14 @@
 import { Stack } from 'expo-router';
-import { colors } from '../../../theme/tokens';
 
 export default function ProfileLayout() {
   return (
-    <Stack
-      screenOptions={{
-        headerStyle: { backgroundColor: colors.surface },
-        headerTintColor: colors.ink,
-        headerTitleStyle: { fontWeight: '600' },
-      }}>
-      <Stack.Screen name="index" options={{ title: 'Profile Settings' }} />
-      <Stack.Screen name="export" options={{ title: 'Export Data' }} />
-      <Stack.Screen name="legal" options={{ title: 'Legal & Compliance' }} />
+    <Stack screenOptions={{ headerShown: false }}>
+      <Stack.Screen name="index" />
+      <Stack.Screen name="export" />
+      <Stack.Screen name="legal" />
+      <Stack.Screen name="reminders" />
+      <Stack.Screen name="health-summary" />
+      <Stack.Screen name="speak-to-doctor" />
     </Stack>
   );
 }
