@@ -9,7 +9,8 @@ export default function GuidanceLayout() {
         headerTintColor: colors.ink,
         headerTitleStyle: { fontWeight: '600' },
       }}>
-      <Stack.Screen name="index" options={{ title: 'Ask the Advisor' }} />
+      <Stack.Screen name="index" options={{ title: 'Library' }} />
+      <Stack.Screen name="[id]" options={{ title: 'Library' }} />
     </Stack>
   );
 }

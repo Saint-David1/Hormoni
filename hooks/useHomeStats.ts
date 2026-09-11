@@ -21,6 +21,7 @@ interface HomeStats {
   phase: PhaseResult;
   symptomScore: SymptomScore;
   moodTrend: MoodTrendResult;
+  goals: string[];
 }
 
 const EMPTY_STATS: HomeStats = {
@@ -32,6 +33,7 @@ const EMPTY_STATS: HomeStats = {
   phase: { phase: 'period', confidence: 'estimated' },
   symptomScore: 'none',
   moodTrend: { kind: 'none', label: 'No check-ins yet' },
+  goals: [],
 };
 
 export function useHomeStats() {
@@ -41,15 +43,17 @@ export function useHomeStats() {
   const load = useCallback(async () => {
     if (!user) return;
 
-    const [cyclesRes, symptomsRes, moodRes] = await Promise.all([
+    const [cyclesRes, symptomsRes, moodRes, profileRes] = await Promise.all([
       supabase.from('cycles').select('start_date').eq('user_id', user.id).order('start_date', { ascending: false }).limit(6),
       supabase.from('symptom_logs').select('severity, logged_at').eq('user_id', user.id).order('logged_at', { ascending: false }).limit(30),
       supabase.from('mood_checkins').select('mood_value, logged_at').eq('user_id', user.id).order('logged_at', { ascending: false }).limit(30),
+      supabase.from('profiles').select('goals').eq('id', user.id).single(),
     ]);
 
     const cycles = cyclesRes.data ?? [];
     const symptoms = symptomsRes.data ?? [];
     const moods = moodRes.data ?? [];
+    const goals = profileRes.data?.goals ?? [];
 
     const prediction = computeCyclePrediction(cycles);
 
@@ -62,6 +66,7 @@ export function useHomeStats() {
       phase: prediction ? computePhase(prediction.cycleDay, prediction.predictedLength, prediction.hasEnoughData) : { phase: 'period', confidence: 'estimated' },
       symptomScore: computeSymptomScore(symptoms),
       moodTrend: computeMoodTrend(moods),
+      goals,
     });
   }, [user]);
 

@@ -1,7 +1,10 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { TouchableOpacity, Text, StyleSheet } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
+import Animated, { useAnimatedStyle, useSharedValue, withSequence, withSpring } from 'react-native-reanimated';
 import { colors, radii, spacing, textStyles, typography } from '../theme/tokens';
+
+const AnimatedTouchable = Animated.createAnimatedComponent(TouchableOpacity);
 
 interface LogTagProps {
   label: string;
@@ -10,9 +13,19 @@ interface LogTagProps {
 }
 
 export const LogTag: React.FC<LogTagProps> = ({ label, selected = false, onPress }) => {
+  const scale = useSharedValue(1);
+
+  useEffect(() => {
+    if (selected) {
+      scale.value = withSequence(withSpring(1.08, { damping: 10, stiffness: 300 }), withSpring(1, { damping: 12, stiffness: 220 }));
+    }
+  }, [selected]);
+
+  const animatedStyle = useAnimatedStyle(() => ({ transform: [{ scale: scale.value }] }));
+
   return (
-    <TouchableOpacity
-      style={[styles.container, selected ? styles.selected : styles.unselected]}
+    <AnimatedTouchable
+      style={[styles.container, selected ? styles.selected : styles.unselected, animatedStyle]}
       onPress={onPress}
       activeOpacity={0.8}
     >
@@ -20,7 +33,7 @@ export const LogTag: React.FC<LogTagProps> = ({ label, selected = false, onPress
       <Text style={[textStyles.body, { fontFamily: typography.bodyMedium, color: selected ? colors.primaryPressed : colors.inkSoft }]}>
         {label}
       </Text>
-    </TouchableOpacity>
+    </AnimatedTouchable>
   );
 };
 

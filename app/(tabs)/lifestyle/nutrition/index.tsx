@@ -1,6 +1,6 @@
-import React, { useEffect, useState } from 'react';
+import React, { useCallback, useState } from 'react';
 import { View, Text, TextInput, StyleSheet, SafeAreaView, FlatList, TouchableOpacity } from 'react-native';
-import { useRouter } from 'expo-router';
+import { useRouter, useFocusEffect } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { TopAppBar, Card, Chip } from '../../../../components';
 import { colors, spacing, textStyles } from '../../../../theme/tokens';
@@ -19,13 +19,21 @@ export default function NutritionScreen() {
   const [query, setQuery] = useState('');
   const [foods, setFoods] = useState<Food[]>([]);
 
-  useEffect(() => {
-    let request = supabase.from('foods').select('id, name, category, description').eq('category', category);
-    if (query.trim()) {
-      request = request.ilike('name', `%${query.trim()}%`);
-    }
-    request.order('name').then(({ data }) => setFoods(data ?? []));
-  }, [category, query]);
+  useFocusEffect(
+    useCallback(() => {
+      let request = supabase.from('foods').select('id, name, category, description').eq('category', category);
+      if (query.trim()) {
+        request = request.ilike('name', `%${query.trim()}%`);
+      }
+      request.order('name').then(({ data, error }) => {
+        if (error) {
+          console.error('Failed to load foods', error);
+          return;
+        }
+        setFoods(data ?? []);
+      });
+    }, [category, query])
+  );
 
   return (
     <SafeAreaView style={styles.container}>

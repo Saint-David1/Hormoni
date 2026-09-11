@@ -1,8 +1,9 @@
 import React, { useCallback, useState } from 'react';
 import { View, Text, StyleSheet, ScrollView, SafeAreaView, TouchableOpacity, Modal } from 'react-native';
+import Animated, { FadeInDown } from 'react-native-reanimated';
 import { useRouter, useFocusEffect } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
-import { MonthCalendar, Card, IconChip } from '../../../components';
+import { MonthCalendar, Card, GlassCard, IconChip } from '../../../components';
 import { colors, spacing, textStyles } from '../../../theme/tokens';
 import { supabase } from '../../../lib/supabase';
 import { useAuthStore } from '../../../store/authStore';
@@ -79,7 +80,7 @@ export default function TrackScreen() {
         <Text style={[textStyles.screenTitle, styles.title]}>Track</Text>
         <Text style={[textStyles.body, styles.subtitle]}>Tap a date to see or log that day's records.</Text>
 
-        <Card>
+        <GlassCard>
           <MonthCalendar
             month={month}
             onMonthChange={setMonth}
@@ -92,7 +93,7 @@ export default function TrackScreen() {
               setSheetVisible(true);
             }}
           />
-        </Card>
+        </GlassCard>
 
         <TouchableOpacity onPress={() => router.push('/(tabs)/track/timeline')}>
           <Card style={styles.timelineLink}>
@@ -110,20 +111,21 @@ export default function TrackScreen() {
           <View style={styles.sheet}>
             <Text style={[textStyles.cardTitle, styles.sheetTitle]}>Log for {selectedDate}</Text>
             <View style={styles.sheetGrid}>
-              {QUICK_ACTIONS.map((action) => (
-                <TouchableOpacity
-                  key={action.label}
-                  style={styles.sheetItem}
-                  onPress={() => {
-                    setSheetVisible(false);
-                    router.push(action.route as any);
-                  }}
-                >
-                  <IconChip tint={action.tint} size={44}>
-                    <Ionicons name={action.icon as any} size={22} color={colors.ink} />
-                  </IconChip>
-                  <Text style={[textStyles.caption, { color: colors.ink, marginTop: spacing.xs }]}>{action.label}</Text>
-                </TouchableOpacity>
+              {QUICK_ACTIONS.map((action, index) => (
+                <Animated.View key={action.label} entering={FadeInDown.delay(index * 40).duration(250)}>
+                  <TouchableOpacity
+                    style={styles.sheetItem}
+                    onPress={() => {
+                      setSheetVisible(false);
+                      router.push(action.route as any);
+                    }}
+                  >
+                    <IconChip tint={action.tint} size={44}>
+                      <Ionicons name={action.icon as any} size={22} color={colors.ink} />
+                    </IconChip>
+                    <Text style={[textStyles.caption, { color: colors.ink, marginTop: spacing.xs }]}>{action.label}</Text>
+                  </TouchableOpacity>
+                </Animated.View>
               ))}
             </View>
           </View>

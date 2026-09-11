@@ -89,6 +89,7 @@ export default function AssessmentScreen() {
 
     const lifestyleFocus = (finalAnswers.lifestyle_focus as string[]) || [];
     setOnboardingFocusAreas(lifestyleFocus);
+    await supabase.from('profiles').upsert({ id: user.id, focus_areas: lifestyleFocus });
 
     setLoading(false);
     router.push('/(onboarding)/personalize');

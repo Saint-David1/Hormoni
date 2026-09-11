@@ -68,11 +68,11 @@ export default function ProfileScreen() {
         <Card tint="fertile">
           <Text style={[textStyles.bodyStrong, { color: colors.ink }]}>Need professional support?</Text>
           <Text style={[textStyles.body, styles.supportText]}>
-            Request a consultation, or chat with our virtual assistant for general guidance.
+            Request a consultation, or search our Library for trusted information on PCOS and female health.
           </Text>
           <View style={styles.supportButtons}>
             <Button label="Speak to a Doctor" size="sm" onPress={() => router.push('/(tabs)/profile/speak-to-doctor')} style={styles.supportButton} />
-            <Button label="Ask the Advisor" size="sm" variant="outline" onPress={() => router.push('/(tabs)/guidance')} style={styles.supportButton} />
+            <Button label="Search the Library" size="sm" variant="outline" onPress={() => router.push('/(tabs)/guidance')} style={styles.supportButton} />
           </View>
         </Card>
 

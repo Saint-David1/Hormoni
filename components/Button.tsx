@@ -1,6 +1,9 @@
 import React from 'react';
 import { TouchableOpacity, Text, StyleSheet, TouchableOpacityProps, ViewStyle, TextStyle } from 'react-native';
+import Animated, { useAnimatedStyle, useSharedValue, withSpring } from 'react-native-reanimated';
 import { colors, typography, radii, spacing } from '../theme/tokens';
+
+const AnimatedTouchable = Animated.createAnimatedComponent(TouchableOpacity);
 
 interface ButtonProps extends TouchableOpacityProps {
   label: string;
@@ -11,6 +14,9 @@ interface ButtonProps extends TouchableOpacityProps {
 }
 
 export const Button: React.FC<ButtonProps> = ({ label, variant = 'primary', size = 'md', style, labelStyle, ...props }) => {
+  const scale = useSharedValue(1);
+  const animatedStyle = useAnimatedStyle(() => ({ transform: [{ scale: scale.value }] }));
+
   const getVariantStyles = () => {
     switch (variant) {
       case 'secondary':
@@ -30,21 +36,24 @@ export const Button: React.FC<ButtonProps> = ({ label, variant = 'primary', size
   const { container, label: variantLabelStyle } = getVariantStyles();
 
   return (
-    <TouchableOpacity
+    <AnimatedTouchable
       style={[
         styles.baseContainer,
         size === 'sm' && styles.smContainer,
         container,
         style,
         props.disabled && styles.disabledContainer,
+        animatedStyle,
       ]}
       activeOpacity={0.8}
+      onPressIn={() => { scale.value = withSpring(0.96, { damping: 16, stiffness: 300 }); }}
+      onPressOut={() => { scale.value = withSpring(1, { damping: 12, stiffness: 220 }); }}
       {...props}
     >
       <Text style={[styles.baseLabel, variantLabelStyle, labelStyle, props.disabled && styles.disabledLabel]}>
         {label}
       </Text>
-    </TouchableOpacity>
+    </AnimatedTouchable>
   );
 };
 

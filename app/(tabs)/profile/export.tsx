@@ -6,7 +6,20 @@ import * as Sharing from 'expo-sharing';
 import { colors, spacing, textStyles } from '../../../theme/tokens';
 import { Button, Card, Callout, TopAppBar } from '../../../components';
 import { useAuthStore } from '../../../store/authStore';
-import { getQueue } from '../../../lib/db';
+import { supabase } from '../../../lib/supabase';
+import { SyncTable } from '../../../lib/db';
+
+const EXPORT_TABLES: SyncTable[] = [
+  'cycles',
+  'symptom_logs',
+  'weight_logs',
+  'mood_checkins',
+  'journal_entries',
+  'exercise_logs',
+  'sleep_logs',
+  'hydration_logs',
+  'habit_completions',
+];
 
 export default function ExportDataScreen() {
   const router = useRouter();
@@ -18,15 +31,19 @@ export default function ExportDataScreen() {
     setLoading(true);
 
     try {
-      // For this phase, we mock the export by pulling from the offline queue. 
-      // In a production app, we would pull all historical data from Supabase.
-      const localData = await getQueue();
-      
+      const results = await Promise.all(
+        EXPORT_TABLES.map((table) => supabase.from(table).select('*').eq('user_id', user.id))
+      );
+
+      const data = Object.fromEntries(
+        EXPORT_TABLES.map((table, i) => [table, results[i].data ?? []])
+      );
+
       const exportObject = {
         user_id: user.id,
         email: user.email,
         export_date: new Date().toISOString(),
-        data: localData,
+        data,
       };
 
       const fileUri = `${FileSystem.documentDirectory}hornomi_export_${Date.now()}.json`;

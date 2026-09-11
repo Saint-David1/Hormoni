@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { View, Text, StyleSheet, SafeAreaView, ScrollView, Alert } from 'react-native';
+import { View, Text, TextInput, StyleSheet, SafeAreaView, ScrollView, Alert } from 'react-native';
 import { useRouter } from 'expo-router';
 import { TopAppBar, Button, Card, LogTag, Callout } from '../../../components';
 import { colors, spacing, textStyles } from '../../../theme/tokens';
@@ -14,6 +14,7 @@ export default function SpeakToDoctorScreen() {
   const router = useRouter();
   const user = useAuthStore((state) => state.user);
   const [reasons, setReasons] = useState<string[]>([]);
+  const [message, setMessage] = useState('');
   const [includeSummary, setIncludeSummary] = useState(true);
   const [submitting, setSubmitting] = useState(false);
 
@@ -25,7 +26,7 @@ export default function SpeakToDoctorScreen() {
     if (!user || reasons.length === 0) return;
     setSubmitting(true);
 
-    const dataSnapshot: Record<string, unknown> = { reasons };
+    const dataSnapshot: Record<string, unknown> = { reasons, message: message.trim(), email: user.email };
     if (includeSummary) {
       dataSnapshot.health_summary = await buildHealthSummary(user.id);
     }
@@ -65,6 +66,20 @@ export default function SpeakToDoctorScreen() {
           ))}
         </View>
 
+        <Text style={[textStyles.cardTitle, styles.sectionTitle]}>Tell us more (optional)</Text>
+        <Card>
+          <TextInput
+            style={styles.messageInput}
+            placeholder="Tell us more about what you're experiencing — anything that would help a doctor understand your situation."
+            placeholderTextColor={colors.inkFaint}
+            value={message}
+            onChangeText={setMessage}
+            multiline
+            numberOfLines={4}
+            textAlignVertical="top"
+          />
+        </Card>
+
         <Card>
           <Text style={[textStyles.bodyStrong, { color: colors.ink }]}>Prepare your consultation</Text>
           <Text style={[textStyles.body, styles.description]}>
@@ -91,5 +106,11 @@ const styles = StyleSheet.create({
   sectionTitle: { color: colors.ink, marginBottom: spacing.md },
   tagRow: { flexDirection: 'row', flexWrap: 'wrap', gap: spacing.sm, marginBottom: spacing.lg },
   description: { color: colors.inkSoft, marginVertical: spacing.sm },
+  messageInput: {
+    minHeight: 96,
+    fontFamily: textStyles.body.fontFamily,
+    fontSize: 15,
+    color: colors.ink,
+  },
   footer: { padding: spacing.xl, borderTopWidth: 1, borderColor: colors.bgWash, backgroundColor: colors.surfaceAlt },
 });

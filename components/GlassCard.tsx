@@ -1,7 +1,7 @@
 import React from 'react';
 import { View, StyleSheet, ViewStyle, StyleProp } from 'react-native';
 import { BlurView } from 'expo-blur';
-import { colors, radii } from '../theme/tokens';
+import { colors, radii, spacing, shadows } from '../theme/tokens';
 
 interface GlassCardProps {
   intensity?: number;
@@ -11,16 +11,27 @@ interface GlassCardProps {
 }
 
 export const GlassCard: React.FC<GlassCardProps> = ({ intensity = 40, tint = 'light', style, children }) => {
+  // Shadow and the blur's rounded-corner clipping fight on the same view
+  // (overflow: 'hidden' needed for the blur would also clip the shadow), so
+  // the shadow lives on this outer wrapper and the blur/clipping live on the
+  // inner one — same split used in FloatingTabBar for the same reason.
   return (
-    <View style={[styles.container, style]}>
-      <View style={[StyleSheet.absoluteFill, styles.fill]} />
-      <BlurView intensity={intensity} tint={tint} style={StyleSheet.absoluteFill} />
-      <View style={styles.content}>{children}</View>
+    <View style={[styles.shadowWrap, style]}>
+      <View style={styles.container}>
+        <View style={[StyleSheet.absoluteFill, styles.fill]} />
+        <BlurView intensity={intensity} tint={tint} style={StyleSheet.absoluteFill} />
+        <View style={styles.content}>{children}</View>
+      </View>
     </View>
   );
 };
 
 const styles = StyleSheet.create({
+  shadowWrap: {
+    borderRadius: radii.lg,
+    marginBottom: spacing.md,
+    ...shadows.md,
+  },
   container: {
     borderRadius: radii.lg,
     overflow: 'hidden',
@@ -31,6 +42,6 @@ const styles = StyleSheet.create({
     backgroundColor: colors.glassFill,
   },
   content: {
-    padding: 14,
+    padding: spacing.lg,
   },
 });

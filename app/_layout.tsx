@@ -9,15 +9,18 @@ import * as Linking from 'expo-linking';
 import NetInfo from '@react-native-community/netinfo';
 import { useColorScheme } from '@/components/useColorScheme';
 import { AppLockGate } from '@/components/AppLockGate';
+import { AppErrorBoundary } from '@/components/AppErrorBoundary';
 import { useAuthStore } from '../store/authStore';
 import { supabase, createSessionFromUrl } from '../lib/supabase';
 import { initDb } from '../lib/db';
 import { syncOfflineData } from '../lib/syncService';
+import { registerForPushNotificationsAsync } from '../lib/pushNotifications';
 
-export {
-  // Catch any errors thrown by the Layout component.
-  ErrorBoundary,
-} from 'expo-router';
+// Catch any errors thrown by the Layout component. This is the only crash UI
+// a remote tester (TestFlight/APK build, no dev tools attached) ever sees —
+// expo-router's default is a raw black stack-trace screen, unsuitable for a
+// public demo.
+export const ErrorBoundary = AppErrorBoundary;
 
 export const unstable_settings = {
   // Ensure that reloading on `/modal` keeps a back button present.
@@ -31,6 +34,7 @@ export default function RootLayout() {
   const loadLocalState = useAuthStore(state => state.loadLocalState);
   const setSession = useAuthStore(state => state.setSession);
   const setUser = useAuthStore(state => state.setUser);
+  const router = useRouter();
 
   useEffect(() => {
     loadLocalState();
@@ -56,11 +60,16 @@ export default function RootLayout() {
     supabase.auth.getSession().then(({ data: { session } }) => {
       setSession(session);
       setUser(session?.user || null);
+      if (session?.user) registerForPushNotificationsAsync(session.user.id);
     });
 
-    supabase.auth.onAuthStateChange((_event, session) => {
+    supabase.auth.onAuthStateChange((event, session) => {
       setSession(session);
       setUser(session?.user || null);
+      if (session?.user) registerForPushNotificationsAsync(session.user.id);
+      if (event === 'PASSWORD_RECOVERY') {
+        router.push('/auth/reset-password');
+      }
     });
 
     return () => {

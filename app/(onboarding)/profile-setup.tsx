@@ -48,6 +48,7 @@ export default function ProfileSetupScreen() {
       first_name: firstName.trim() || null,
       last_name: lastName.trim() || null,
       age: parseInt(age, 10) || null,
+      goals,
     });
 
     setOnboardingGoals(goals);
